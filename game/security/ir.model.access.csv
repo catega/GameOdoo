@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_game_player,game.player,model_game_player,base.group_user,1,1,1,1
+access_game_fortress,game.fortress,model_game_fortress,base.group_user,1,1,1,1
+access_game_clan,game.clan,model_game_clan,base.group_user,1,1,1,1
