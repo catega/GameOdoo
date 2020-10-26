@@ -13,17 +13,9 @@ class player(models.Model):
     level = fields.Integer()
     points = fields.Integer()
     description = fields.Text()
-    fortresses = fields.One2many('game.fortress', 'leader')
+    regions = fields.One2many('game.region', 'leader')
     clan = fields.Many2one('game.clan')
-
-class fortress(models.Model):
-    _name = 'game.fortress'
-    _description = 'game.fortress'
-
-    name = fields.Char()
-    level = fields.Integer()
-    max_characters = fields.Integer()
-    leader = fields.Many2one('game.player', ondelete='cascade')
+    characters = fields.One2many('game.character', 'player_leader')
 
 class clan(models.Model):
     _name = 'game.clan'
@@ -32,3 +24,23 @@ class clan(models.Model):
     name = fields.Char()
     level = fields.Integer()
     members = fields.One2many('game.player', 'clan')
+
+class character(models.Model):
+    _name = 'game.character'
+    _description = 'game.character'
+
+    name = fields.Char()
+    level = fields.Integer()
+    player_leader = fields.Many2one('game.player')
+    region = fields.Many2one('game.region')
+
+class region(models.Model):
+    _name = 'game.region'
+    _description = 'game.region'
+
+    name = fields.Char()
+    base_level = fields.Integer()
+    max_characters = fields.Integer()
+    leader = fields.Many2one('game.player', ondelete='cascade')
+    characters = fields.One2many('game.character', 'region')
+

@@ -1,19 +1,20 @@
 <odoo>
   <data>
     <!-- explicit list view definition -->
-<!--
-    <record model="ir.ui.view" id="game.list">
-      <field name="name">game list</field>
-      <field name="model">game.game</field>
+
+    <record model="ir.ui.view" id="game.player_list">
+      <field name="name">Players</field>
+      <field name="model">game.player</field>
       <field name="arch" type="xml">
         <tree>
           <field name="name"/>
-          <field name="value"/>
-          <field name="value2"/>
+          <field name="race"/>
+          <field name="level"/>
+          <field name="points"/>
         </tree>
       </field>
     </record>
--->
+
 
     <!-- actions opening views on models -->
 
@@ -22,14 +23,19 @@
       <field name="res_model">game.player</field>
       <field name="view_mode">tree,form</field>
     </record>
-    <record model="ir.actions.act_window" id="game.fortress_action_window">
-      <field name="name">Fortresses</field>
-      <field name="res_model">game.fortress</field>
-      <field name="view_mode">tree,form</field>
-    </record>
     <record model="ir.actions.act_window" id="game.clan_action_window">
       <field name="name">Clans</field>
       <field name="res_model">game.clan</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+    <record model="ir.actions.act_window" id="game.character_action_window">
+      <field name="name">Characters</field>
+      <field name="res_model">game.character</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+    <record model="ir.actions.act_window" id="game.region_action_window">
+      <field name="name">Regions</field>
+      <field name="res_model">game.region</field>
       <field name="view_mode">tree,form</field>
     </record>
 
@@ -62,10 +68,12 @@
 
     <menuitem name="Players" id="game.menu_1_player" parent="game.menu_1"
               action="game.player_action_window"/>
-    <menuitem name="Fortresses" id="game.menu_1_fortress" parent="game.menu_1"
-              action="game.fortress_action_window"/>
     <menuitem name="Clans" id="game.menu_1_clan" parent="game.menu_1"
               action="game.clan_action_window"/>
+    <menuitem name="Characters" id="game.menu_1_character" parent="game.menu_1"
+              action="game.character_action_window"/>
+    <menuitem name="Regions" id="game.menu_1_region" parent="game.menu_1"
+              action="game.region_action_window"/>
 
   </data>
 </odoo>
