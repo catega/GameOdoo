@@ -15,6 +15,7 @@
             </field>
         </record>
 
+        <!-- Player form -->
         <record model="ir.ui.view" id="game.player_form">
             <field name="name">Players</field>
             <field name="model">game.player</field>
@@ -47,13 +48,14 @@
             </field>
         </record>
 
+        <!-- Character form -->
         <record model="ir.ui.view" id="game.character_form">
             <field name="name">Characters</field>
             <field name="model">game.character</field>
             <field name="arch" type="xml">
                 <form string="Character form">
                     <sheet>
-                      <field name="name"/>
+                        <field name="name"/>
                         <group>
                             <group>
                                 <separator string="General info"/>
@@ -73,6 +75,26 @@
             </field>
         </record>
 
+        <!-- Clan form -->
+        <record model="ir.ui.view" id="game.clan_form">
+            <field name="name">Clans</field>
+            <field name="model">game.clan</field>
+            <field name="arch" type="xml">
+                <form string="Clan form">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="level"/>
+                        </group>
+                        <notebook>
+                            <page string="Player members">
+                                <field name="members"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
         <!-- actions opening views on models -->
 
