@@ -33,6 +33,10 @@ class character(models.Model):
     level = fields.Integer()
     player_leader = fields.Many2one('game.player')
     region = fields.Many2one('game.region')
+    mining_level = fields.Integer();
+    hunting_level = fields.Integer();
+    gathering_level = fields.Integer();
+
 
 class region(models.Model):
     _name = 'game.region'
