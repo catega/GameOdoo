@@ -141,12 +141,14 @@
                                         <templates>
                                             <t t-name="kanban-box">
                                                 <div class="oe_product_vignette">
-                                                    <a type="open">
-                                                        <img class="o_image_64_contain"
-                                                             t-att-alt="record.name.value"
+                                                    <div class="o_kanban_image">
+                                                        <a type="open">
+                                                            <img class="o_image_64_contain"
+                                                                 t-att-alt="record.name.value"
 
-                                                             t-att-src="kanban_image('game.player', 'photo', record.id.raw_value)"/>
-                                                    </a>
+                                                                 t-att-src="kanban_image('game.player', 'photo', record.id.raw_value)"/>
+                                                        </a>
+                                                    </div>
                                                     <div class="oe_product_desc">
                                                         <h4>
                                                             <a type="edit">
