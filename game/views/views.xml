@@ -2,6 +2,7 @@
     <data>
         <!-- explicit list view definition -->
 
+        <!-- Player tree -->
         <record model="ir.ui.view" id="game.player_list">
             <field name="name">Players</field>
             <field name="model">game.player</field>
@@ -11,6 +12,18 @@
                     <field name="race"/>
                     <field name="level"/>
                     <field name="points"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Region tree -->
+        <record model="ir.ui.view" id="game.region_list">
+            <field name="name">Regions</field>
+            <field name="model">game.region</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="leader"/>
                 </tree>
             </field>
         </record>
@@ -40,7 +53,35 @@
                                 <field name="regions"/>
                             </page>
                             <page string="Characters">
-                                <field name="characters"/>
+                                <field name="characters">
+                                    <kanban>
+                                        <!--list of field to be loaded -->
+                                        <field name="name"/>
+                                        <field name="id"/>
+                                        <field name="region"/>
+                                        <field name='level'/>
+
+                                        <templates>
+                                            <t t-name="kanban-box">
+                                                <div class="oe_product_vignette">
+                                                    <div class="oe_product_desc">
+                                                        <h4>
+                                                            <a type="edit">
+                                                                <field name="name"/>
+                                                            </a>
+                                                        </h4>
+                                                        <p>
+                                                            <b>Level:</b>
+                                                            <field name="level"/>
+                                                            <br/>
+                                                            <field name="region"/>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </templates>
+                                    </kanban>
+                                </field>
                             </page>
                         </notebook>
                     </sheet>
@@ -82,13 +123,84 @@
             <field name="arch" type="xml">
                 <form string="Clan form">
                     <sheet>
+                        <field name="name"/>
                         <group>
-                            <field name="name"/>
                             <field name="level"/>
                         </group>
                         <notebook>
-                            <page string="Player members">
+                            <page string="Members">
                                 <field name="members"/>
+                            </page>
+                            <page string="Regions">
+                                <field name="regions"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Region form -->
+        <record model="ir.ui.view" id="game.region_form">
+            <field name="name">Regions</field>
+            <field name="model">game.region</field>
+            <field name="arch" type="xml">
+                <form string="Region form">
+                    <sheet>
+                        <field name="name"/>
+                        <group>
+                            <field name="leader"/>
+                            <field name="fortress_level"/>
+                            <field name="max_characters"/>
+                            <field name="leader_clan"/>
+                        </group>
+                        <notebook>
+                            <page string="Characters">
+                                <field name="characters">
+                                    <kanban>
+                                        <!--list of field to be loaded -->
+                                        <field name="name"/>
+                                        <field name="id"/>
+                                        <field name="player_leader"/>
+                                        <field name='level'/>
+                                        <field name='hunting_level'/>
+                                        <field name='mining_level'/>
+                                        <field name='gathering_level'/>
+
+                                        <templates>
+                                            <t t-name="kanban-box">
+                                                <div class="oe_product_vignette">
+                                                    <div class="oe_product_desc">
+                                                        <h4>
+                                                            <a type="edit">
+                                                                <field name="name"/>
+                                                            </a>
+                                                        </h4>
+                                                        <p>
+                                                            <b>Leader:</b>
+                                                            <field name="player_leader"/>
+                                                            <br/>
+                                                            <b>Level:</b>
+                                                            <field name="level"/>
+                                                        </p>
+                                                    </div>
+                                                    <div class="oe_product_desc">
+                                                        <p>
+                                                            <b>Hunting level:</b>
+                                                            <field name="hunting_level"/>
+                                                            <br/>
+                                                            <b>Mining level:</b>
+                                                            <field name="mining_level"/>
+                                                            <br/>
+                                                            <b>Gathering level:</b>
+                                                            <field name="gathering_level"/>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </templates>
+                                    </kanban>
+                                </field>
                             </page>
                         </notebook>
                     </sheet>
@@ -111,7 +223,7 @@
         <record model="ir.actions.act_window" id="game.character_action_window">
             <field name="name">Characters</field>
             <field name="res_model">game.character</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">tree,form,kanban</field>
         </record>
         <record model="ir.actions.act_window" id="game.region_action_window">
             <field name="name">Regions</field>
