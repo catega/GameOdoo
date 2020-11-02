@@ -7,7 +7,7 @@ class player(models.Model):
     _name = 'game.player'
     _description = 'game.player'
 
-    photo = fields.Image(max_width='120')
+    photo = fields.Image(max_width=120, max_height=120)
     name = fields.Char()
     race = fields.Selection([('1', 'Hombre lobo'), ('2', 'Vampiro')])
     level = fields.Integer(default=1)
