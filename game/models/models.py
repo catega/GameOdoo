@@ -50,8 +50,8 @@ class region(models.Model):
     _description = 'game.region'
 
     name = fields.Char()
-    fortress_level = fields.Integer()
-    max_characters = fields.Integer()
+    fortress_level = fields.Integer(default=2, compute='_get_fortress_level')
+    max_characters = fields.Integer(default=0, compute='_get_max_characters')
     leader = fields.Many2one('game.player')
     leader_clan = fields.Many2one('game.clan', compute='_get_leader_clan')
     characters = fields.One2many('game.character', 'region')
@@ -60,3 +60,20 @@ class region(models.Model):
     def _get_leader_clan(self):
         for r in self:
             r.leader_clan = r.leader.clan
+
+    def _get_fortress_level(self):
+        for r in self:
+            if r.fortress_level == 0 and self.leader:
+                r.fortress_level = 1
+
+    @api.depends('fortress_level')
+    def _get_max_characters(self):
+        for r in self:
+            r.max_characters = r.fortress_level * 5
+
+class travel(models.Model):
+    _name = 'game.travel'
+    _description = 'game.travel'
+
+    name = fields.Char()
+    #region_origen i region_destino

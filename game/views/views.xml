@@ -2,6 +2,7 @@
     <data>
         <!-- explicit list view definition -->
 
+        <!-- TREE -->
         <!-- Player tree -->
         <record model="ir.ui.view" id="game.player_list">
             <field name="name">Players</field>
@@ -28,6 +29,7 @@
             </field>
         </record>
 
+        <!-- FORM -->
         <!-- Player form -->
         <record model="ir.ui.view" id="game.player_form">
             <field name="name">Players</field>
@@ -145,7 +147,6 @@
                                                         <a type="open">
                                                             <img class="o_image_64_contain"
                                                                  t-att-alt="record.name.value"
-
                                                                  t-att-src="kanban_image('game.player', 'photo', record.id.raw_value)"/>
                                                         </a>
                                                     </div>
@@ -243,6 +244,24 @@
                         </notebook>
                     </sheet>
                 </form>
+            </field>
+        </record>
+
+        <!-- SEARCH -->
+        <!-- Player search -->
+        <record model="ir.ui.view" id="game.player_search">
+            <field name="name">Player search</field>
+            <field name="model">game.player</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="race"/>
+                    <field name="level"/>
+                    <filter name="level" string="High level" domain="[('level', '>=', '50')]"/>
+                    <field name="points"/>
+                    <field name="clan"/>
+                    <filter name="group_by_clan" string="Group by clan" context="{'group_by' : 'clan'}"/>
+                </search>
             </field>
         </record>
 
