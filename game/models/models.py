@@ -28,9 +28,10 @@ class clan(models.Model):
 
     @api.depends('members')
     def _get_regions(self):
-        for r in self:
-            for m in self.members:
-                r.regions += m.regions
+        for c in self:
+            if c.members:
+                for m in c.members:
+                    c.regions += m.regions
 
 class character(models.Model):
     _name = 'game.character'
@@ -50,7 +51,7 @@ class region(models.Model):
     _description = 'game.region'
 
     name = fields.Char()
-    fortress_level = fields.Integer(default=2, compute='_get_fortress_level')
+    fortress_level = fields.Integer(default=0, compute='_get_fortress_level')
     max_characters = fields.Integer(default=0, compute='_get_max_characters')
     leader = fields.Many2one('game.player')
     leader_clan = fields.Many2one('game.clan', compute='_get_leader_clan')
@@ -61,9 +62,10 @@ class region(models.Model):
         for r in self:
             r.leader_clan = r.leader.clan
 
+    @api.depends('leader')
     def _get_fortress_level(self):
         for r in self:
-            if r.fortress_level == 0 and self.leader:
+            if r.fortress_level == 0 and r.leader:
                 r.fortress_level = 1
 
     @api.depends('fortress_level')
@@ -75,5 +77,13 @@ class travel(models.Model):
     _name = 'game.travel'
     _description = 'game.travel'
 
-    name = fields.Char()
-    #region_origen i region_destino
+    name = fields.Char(compute='_get_travel_name')
+    player = fields.Many2one('game.player')
+    launch_time = fields.Datetime(default=lambda t: fields.Datetime.now())
+    origin_region = fields.Many2one('game.region')
+    destiny_region = fields.Many2one('game.region')
+
+    @api.depends('origin_region', 'destiny_region', 'player')
+    def _get_travel_name(self):
+        for t in self:
+            t.name = str(t.player.name) + " : " + str(t.origin_region.name) + " -> " + str(t.destiny_region.name)

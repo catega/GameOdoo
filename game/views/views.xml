@@ -29,6 +29,18 @@
             </field>
         </record>
 
+        <!-- Travel tree -->
+        <record model="ir.ui.view" id="game.travel_list">
+            <field name="name">Travels</field>
+            <field name="model">game.travel</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="launch_time"/>
+                </tree>
+            </field>
+        </record>
+
         <!-- FORM -->
         <!-- Player form -->
         <record model="ir.ui.view" id="game.player_form">
@@ -247,6 +259,31 @@
             </field>
         </record>
 
+        <!-- Character form -->
+        <record model="ir.ui.view" id="game.travel_form">
+            <field name="name">Travels</field>
+            <field name="model">game.travel</field>
+            <field name="arch" type="xml">
+                <form string="Travel form">
+                    <sheet>
+                        <field name="name"/>
+                        <group>
+                            <group>
+                                <separator string="General info"/>
+                                <field name="player"/>
+                                <field name="launch_time"/>
+                            </group>
+                            <group>
+                                <separator string="Regions"/>
+                                <field name="origin_region"/>
+                                <field name="destiny_region"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
         <!-- SEARCH -->
         <!-- Player search -->
         <record model="ir.ui.view" id="game.player_search">
@@ -287,6 +324,11 @@
             <field name="res_model">game.region</field>
             <field name="view_mode">tree,form</field>
         </record>
+        <record model="ir.actions.act_window" id="game.travel_action_window">
+            <field name="name">Travels</field>
+            <field name="res_model">game.travel</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
 
         <!-- server action to the one above -->
@@ -323,6 +365,8 @@
                   action="game.character_action_window"/>
         <menuitem name="Regions" id="game.menu_1_region" parent="game.menu_1"
                   action="game.region_action_window"/>
+        <menuitem name="Travels" id="game.menu_1_travel" parent="game.menu_1"
+                  action="game.travel_action_window"/>
 
     </data>
 </odoo>
