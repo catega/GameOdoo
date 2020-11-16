@@ -292,7 +292,7 @@
             </field>
         </record>
 
-        <!-- Character form -->
+        <!-- Travel form -->
         <record model="ir.ui.view" id="game.travel_form">
             <field name="name">Travels</field>
             <field name="model">game.travel</field>
@@ -366,6 +366,58 @@
             </field>
         </record>
 
+        <!-- Character Kanbam -->
+        <record model="ir.ui.view" id="game.character_kanban">
+            <field name="name">Characters</field>
+            <field name="model">game.character</field>
+            <field name="arch" type="xml">
+                <kanban>
+                    <!--list of field to be loaded -->
+                    <field name="name"/>
+                    <field name='level'/>
+                    <field name='player_leader'/>
+                    <field name='region'/>
+                    <field name='mining_level'/>
+                    <field name='hunting_level'/>
+                    <field name='gathering_level'/>
+
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_product_vignette">
+                                <div class="oe_product_desc">
+                                    <h4>
+                                        <a type="edit">
+                                            <field name="name"/>
+                                        </a>
+                                    </h4>
+                                    <p>
+                                        <b>Level:</b>
+                                        <field name="level"/>
+                                        <br/>
+                                        <b>Leader:</b>
+                                        <field name="player_leader"/>
+                                        <br/>
+                                        <b>Region:</b>
+                                        <field name='region'/>
+                                    </p>
+                                    <p>
+                                        <b>Mining level:</b>
+                                        <field name="mining_level"/>
+                                        <br/>
+                                        <b>Hunting level:</b>
+                                        <field name="hunting_level"/>
+                                        <br/>
+                                        <b>Gathering level:</b>
+                                        <field name='gathering_level'/>
+                                    </p>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
         <!-- SEARCH -->
         <!-- Player search -->
         <record model="ir.ui.view" id="game.player_search">
@@ -380,6 +432,20 @@
                     <field name="points"/>
                     <field name="clan"/>
                     <filter name="group_by_clan" string="Group by clan" context="{'group_by' : 'clan'}"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Character search -->
+        <record model="ir.ui.view" id="game.character_search">
+            <field name="name">Character search</field>
+            <field name="model">game.character</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="level"/>
+                    <filter name="group_by_player" string="Group by player" context="{'group_by' : 'player_leader'}"/>
+                    <filter name="group_by_region" string="Group by region" context="{'group_by' : 'region'}"/>
                 </search>
             </field>
         </record>
