@@ -9,6 +9,7 @@
             <field name="model">game.player</field>
             <field name="arch" type="xml">
                 <tree>
+                    <field name="image_small" widget="image"/>
                     <field name="name"/>
                     <field name="race"/>
                     <field name="level"/>
@@ -22,9 +23,17 @@
             <field name="name">Regions</field>
             <field name="model">game.region</field>
             <field name="arch" type="xml">
-                <tree>
+                <tree decoration-warning="gold_production>200" decoration-info="gold_production&lt;0">
                     <field name="name"/>
                     <field name="leader"/>
+                    <field name="mines"/>
+                    <field name="forests"/>
+                    <field name="villages"/>
+                    <field name="cities"/>
+                    <field name="iron_production"/>
+                    <field name="wood_production"/>
+                    <field name="food_production"/>
+                    <field name="gold_production"/>
                 </tree>
             </field>
         </record>
@@ -198,12 +207,36 @@
             <field name="arch" type="xml">
                 <form string="Region form">
                     <sheet>
-                        <field name="name"/>
                         <group>
-                            <field name="leader"/>
-                            <field name="fortress_level"/>
-                            <field name="max_characters"/>
-                            <field name="leader_clan"/>
+                            <group>
+                                <separator string="General info"/>
+                                <field name="name"/>
+                                <field name="leader"/>
+                                <field name="leader_clan"/>
+                            </group>
+                            <group>
+                                <separator string="Fortress"/>
+                                <field name="fortress_level"/>
+                                <field name="max_characters"/>
+                                <field name="iron"/>
+                                <field name="wood"/>
+                                <field name="food"/>
+                                <field name="gold"/>
+                            </group>
+                            <group>
+                                <separator string="Resource generators"/>
+                                <field name="mines"/>
+                                <field name="forests"/>
+                                <field name="villages"/>
+                                <field name="cities"/>
+                            </group>
+                            <group>
+                                <separator string="Resources per day"/>
+                                <field name="iron_production"/>
+                                <field name="wood_production"/>
+                                <field name="food_production"/>
+                                <field name="gold_production"/>
+                            </group>
                         </group>
                         <notebook>
                             <page string="Characters">
@@ -284,6 +317,55 @@
             </field>
         </record>
 
+        <!-- KANBAN -->
+        <!-- Player Kanbam -->
+        <record model="ir.ui.view" id="game.player_kanban">
+            <field name="name">Players</field>
+            <field name="model">game.player</field>
+            <field name="arch" type="xml">
+                <kanban>
+                    <!--list of field to be loaded -->
+                    <field name="name"/>
+                    <field name="id"/>
+                    <field name='level'/>
+                    <field name='points'/>
+                    <field name='photo'/>
+                    <field name='clan'/>
+
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_product_vignette">
+                                <div class="o_kanban_image">
+                                    <a type="open">
+                                        <img class="o_image_64_contain"
+                                             t-att-alt="record.name.value"
+                                             t-att-src="kanban_image('game.player', 'photo', record.id.raw_value)"/>
+                                    </a>
+                                </div>
+                                <div class="oe_product_desc">
+                                    <h4>
+                                        <a type="edit">
+                                            <field name="name"/>
+                                        </a>
+                                    </h4>
+                                    <p>
+                                        <b>Level:</b>
+                                        <field name="level"/>
+                                        <br/>
+                                        <b>Points:</b>
+                                        <field name="points"/>
+                                        <br/>
+                                        <b>Clan:</b>
+                                        <field name='clan'/>
+                                    </p>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
         <!-- SEARCH -->
         <!-- Player search -->
         <record model="ir.ui.view" id="game.player_search">
@@ -307,7 +389,7 @@
         <record model="ir.actions.act_window" id="game.player_action_window">
             <field name="name">Players</field>
             <field name="res_model">game.player</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">tree,form,kanban</field>
         </record>
         <record model="ir.actions.act_window" id="game.clan_action_window">
             <field name="name">Clans</field>
