@@ -23,7 +23,7 @@
             <field name="name">Regions</field>
             <field name="model">game.region</field>
             <field name="arch" type="xml">
-                <tree decoration-warning="gold_production>200" decoration-info="gold_production&lt;0">
+                <tree decoration-warning="gold_production>200">
                     <field name="name"/>
                     <field name="leader"/>
                     <field name="mines"/>
@@ -34,6 +34,8 @@
                     <field name="wood_production"/>
                     <field name="food_production"/>
                     <field name="gold_production"/>
+                    <field name="pos_x"/>
+                    <field name="pos_y"/>
                 </tree>
             </field>
         </record>
@@ -46,6 +48,7 @@
                 <tree>
                     <field name="name"/>
                     <field name="launch_time"/>
+                    <field name="travel_duration"/>
                 </tree>
             </field>
         </record>
@@ -57,17 +60,21 @@
             <field name="model">game.player</field>
             <field name="arch" type="xml">
                 <form string="Player form">
+                    <header>
+                        <field name="battle_status" widget="statusbar"/>
+                    </header>
                     <sheet>
                         <field name="photo" widget="image"/>
                         <group>
                             <group>
                                 <field name="name"/>
                                 <field name="description"/>
+                                <field name="race"/>
                             </group>
                             <group>
-                                <field name="race"/>
                                 <field name="level"/>
                                 <field name="points"/>
+                                <field name="won_battles"/>
                                 <field name="clan"/>
                             </group>
                         </group>
@@ -76,7 +83,7 @@
                                 <field name="regions"/>
                             </page>
                             <page string="Characters">
-                                <field name="characters">
+                                <field name="characters" context="{'default_player_leader': active_id}">
                                     <kanban>
                                         <!--list of field to be loaded -->
                                         <field name="name"/>
@@ -105,6 +112,9 @@
                                         </templates>
                                     </kanban>
                                 </field>
+                            </page>
+                            <page string="Active Travels">
+                                <field name="active_travels"/>
                             </page>
                         </notebook>
                     </sheet>
@@ -237,6 +247,11 @@
                                 <field name="food_production"/>
                                 <field name="gold_production"/>
                             </group>
+                            <group>
+                                <separator string="Coords"/>
+                                <field name="pos_x"/>
+                                <field name="pos_y"/>
+                            </group>
                         </group>
                         <notebook>
                             <page string="Characters">
@@ -305,6 +320,7 @@
                                 <separator string="General info"/>
                                 <field name="player"/>
                                 <field name="launch_time"/>
+                                <field name="travel_duration" widget="percentpie"/>
                             </group>
                             <group>
                                 <separator string="Regions"/>
