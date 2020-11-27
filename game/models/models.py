@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import random
 import string
+from datetime import datetime, timedelta
 
 from odoo import models, fields, api
 
@@ -24,6 +25,7 @@ class player(models.Model):
     level = fields.Integer(default=1)
     points = fields.Integer()
     won_battles = fields.Integer(default=0);
+    lost_battles = fields.Integer(default=0);
     description = fields.Text()
     regions = fields.One2many('game.region', 'leader')
     clan = fields.Many2one('game.clan')
@@ -119,17 +121,19 @@ class travel(models.Model):
     _name = 'game.travel'
     _description = 'game.travel'
 
-    name = fields.Char(compute='_get_travel_name')
-    player = fields.Many2one('game.player')
-    launch_time = fields.Datetime(default=lambda t: fields.Datetime.now())
+    name = fields.Char(default='Travel', compute='_get_travel_name')
+    player = fields.Many2one('game.player', readonly=True)
+    launch_time = fields.Datetime(default=lambda t: fields.Datetime.now(), readonly=True)
+    battle_time = fields.Datetime(compute='_get_battle_time')
     origin_region = fields.Many2one('game.region')
     destiny_region = fields.Many2one('game.region')
-    travel_duration = fields.Integer(compute='_get_travel_duration')
+    travel_duration = fields.Integer(default=0, compute='_get_travel_duration')
+    time_remaining = fields.Float(compute='_get_battle_time')
 
     @api.depends('origin_region', 'destiny_region', 'player')
     def _get_travel_name(self):
         for t in self:
-            if (t.player is False or t.origin_region is False or t.destiny_region is False):
+            if t.player.name is False or t.origin_region.name is False or t.destiny_region.name is False:
                 t.name = "Travel name"
             else:
                 t.name = str(t.player.name) + " : " + str(t.origin_region.name) + " -> " + str(t.destiny_region.name)
@@ -137,7 +141,15 @@ class travel(models.Model):
     @api.depends('origin_region', 'destiny_region')
     def _get_travel_duration(self):
         for t in self:
-            t.travel_duration = ((((t.destiny_region.pos_x - t.origin_region.pos_x)**2) + ((t.destiny_region.pos_y - t.origin_region.pos_y)**2))**0.5)
+                t.travel_duration = ((((t.destiny_region.pos_x - t.origin_region.pos_x)**2) + ((t.destiny_region.pos_y - t.origin_region.pos_y)**2))**0.5)
 
-            if t.travel_duration < 30:
-                t.travel_duration = 30
+                if t.travel_duration < 30:
+                    t.travel_duration = 30
+
+    @api.depends('travel_duration')
+    def _get_battle_time(self):
+        for t in self:
+            t.battle_time = fields.Datetime.from_string(t.launch_time) + timedelta(minutes=t.travel_duration)
+
+            passed = fields.Datetime.from_string(t.battle_time) - datetime.now()
+            t.time_remaining = 100 * passed.seconds / (t.travel_duration * 3600)

@@ -75,6 +75,7 @@
                                 <field name="level"/>
                                 <field name="points"/>
                                 <field name="won_battles"/>
+                                <field name="lost_battles"/>
                                 <field name="clan"/>
                             </group>
                         </group>
@@ -114,7 +115,7 @@
                                 </field>
                             </page>
                             <page string="Active Travels">
-                                <field name="active_travels"/>
+                                <field name="active_travels" context="{'default_player': active_id}"/>
                             </page>
                         </notebook>
                     </sheet>
@@ -320,12 +321,17 @@
                                 <separator string="General info"/>
                                 <field name="player"/>
                                 <field name="launch_time"/>
-                                <field name="travel_duration" widget="percentpie"/>
+                                <field name="battle_time"/>
+                                <field name="travel_duration"/>
                             </group>
                             <group>
                                 <separator string="Regions"/>
                                 <field name="origin_region"/>
                                 <field name="destiny_region"/>
+                            </group>
+                            <group>
+                                <separator string="Time remaining percent"/>
+                                <field name="time_remaining" widget="percentpie"/>
                             </group>
                         </group>
                     </sheet>
