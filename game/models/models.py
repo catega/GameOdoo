@@ -24,8 +24,10 @@ class player(models.Model):
     race = fields.Selection([('1', 'Hombre lobo'), ('2', 'Vampiro')])
     level = fields.Integer(default=1)
     points = fields.Integer()
-    won_battles = fields.Integer(default=0);
-    lost_battles = fields.Integer(default=0);
+    won_battles = fields.Integer(default=0)
+    lost_battles = fields.Integer(default=0)
+    percent_battles = fields.Integer(default=0, compute='_get_percent_battles')
+    time = fields.Char()
     description = fields.Text()
     regions = fields.One2many('game.region', 'leader')
     clan = fields.Many2one('game.clan')
@@ -34,6 +36,14 @@ class player(models.Model):
     image_small = fields.Image(max_width=50, max_height=50, related='photo', string='Image Small', store=True)
     battle_status = fields.Selection(
         [('1', 'Rookie'), ('2', 'Soldier'), ('3', 'Captain'), ('4', 'General'), ('5', 'Warlord')], default='1')
+    player_changes = fields.One2many('game.player_changes', 'player')
+    # Plenar player_changes
+
+    @api.depends('won_battles', 'lost_battles')
+    def _get_percent_battles(self):
+        for p in self:
+            total = p.won_battles + p.lost_battles
+            p.percent_battles = (p.won_battles * 100) / total
 
 class clan(models.Model):
     _name = 'game.clan'
@@ -57,7 +67,7 @@ class character(models.Model):
 
     name = fields.Char()
     level = fields.Integer(default=1)
-    player_leader = fields.Many2one('game.player')
+    player_leader = fields.Many2one('game.player', readonly=True)
     region = fields.Many2one('game.region')
     mining_level = fields.Integer(default=1)
     hunting_level = fields.Integer(default=1)
@@ -117,16 +127,22 @@ class region(models.Model):
     def random_generator(self, a, b):
         return random.randint(a, b)
 
+    @api.model
+    def update_resources(self):
+        print("-----------Update--------------")
+        #regions = self.env['game.region'].search([])
+        #regions.calculate_production()
+
 class travel(models.Model):
     _name = 'game.travel'
     _description = 'game.travel'
 
     name = fields.Char(default='Travel', compute='_get_travel_name')
-    player = fields.Many2one('game.player', readonly=True)
+    player = fields.Many2one('game.player')
     launch_time = fields.Datetime(default=lambda t: fields.Datetime.now(), readonly=True)
     battle_time = fields.Datetime(compute='_get_battle_time')
-    origin_region = fields.Many2one('game.region')
-    destiny_region = fields.Many2one('game.region')
+    origin_region = fields.Many2one('game.region', required=True, ondelete='restrict')
+    destiny_region = fields.Many2one('game.region', required=True, ondelete='restrict')
     travel_duration = fields.Integer(default=0, compute='_get_travel_duration')
     time_remaining = fields.Float(compute='_get_battle_time')
 
@@ -152,4 +168,25 @@ class travel(models.Model):
             t.battle_time = fields.Datetime.from_string(t.launch_time) + timedelta(minutes=t.travel_duration)
 
             passed = fields.Datetime.from_string(t.battle_time) - datetime.now()
-            t.time_remaining = 100 * passed.seconds / (t.travel_duration * 3600)
+
+            t.time_remaining = (100 * passed.seconds) / (t.travel_duration * 60)
+            if t.time_remaining > 100:
+                t.time_remaining = 0
+                t.name += ' FINISHED'
+
+    @api.onchange('player')
+    def _onchange_player(self):
+        return {
+                'domain': {'origin_region': [('leader', '=', self.player.id)],
+                           'destiny_region': [('leader', '!=', self.player.id)]}
+        }
+
+
+class player_changes(models.Model):
+    _name = 'game.player_changes'
+    _description = 'game.player_changes'
+
+    name = fields.Char()
+    player = fields.Many2one('game.player', ondelete='cascade', required=True)
+    percent = fields.Integer()
+    time = fields.Char()

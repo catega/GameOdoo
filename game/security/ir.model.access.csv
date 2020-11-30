@@ -4,3 +4,4 @@ access_game_clan,game.clan,model_game_clan,base.group_user,1,1,1,1
 access_game_character,game.character,model_game_character,base.group_user,1,1,1,1
 access_game_region,game.region,model_game_region,base.group_user,1,1,1,1
 access_game_travel,game.travel,model_game_travel,base.group_user,1,1,1,1
+access_game_player_changes,game.player_changes,model_game_player_changes,base.group_user,1,1,1,1
