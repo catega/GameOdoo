@@ -50,7 +50,7 @@ class clan(models.Model):
     _description = 'game.clan'
 
     name = fields.Char()
-    level = fields.Integer(default=1)
+    level = fields.Integer(default=1, readonly=True)
     members = fields.One2many('game.player', 'clan')
     regions = fields.One2many('game.region', 'leader_clan', compute='_get_regions')
 
@@ -179,6 +179,56 @@ class travel(models.Model):
         return {
                 'domain': {'origin_region': [('leader', '=', self.player.id)],
                            'destiny_region': [('leader', '!=', self.player.id)]}
+        }
+
+class battle(models.Model):
+    _name = 'game.battle'
+    _description = 'game.battle'
+
+    name = fields.Char(compute='_get_battle_name')
+    player1 = fields.Many2one('game.player')
+    player2 = fields.Many2one('game.player')
+    player1_region = fields.Many2one('game.region', required=True, ondelete='restrict')
+    player2_region = fields.Many2one('game.region', required=True, ondelete='restrict')
+
+    @api.depends('player1', 'player2')
+    def _get_battle_name(self):
+        for b in self:
+            if b.player1.name is False or b.player2.name is False:
+                b.name = "Battle name"
+            else:
+                b.name = str(b.player1.name) + " vs " + str(b.player2.name)
+
+    @api.onchange('player1')
+    def _onchange_player1(self):
+        if self.player2:
+            if self.player1.id == self.player2.id:
+                self.player1 = False
+                return {
+                    'warning': {
+                        'title': "Players must be different",
+                        'message': "Player 1 is the same as Player 2",
+                    }
+                }
+        return {
+            'domain': {'player1_region': [('leader', '=', self.player1.id)],
+                       'player2': [('id', '!=', self.player1.id)]},
+        }
+
+    @api.onchange('player2')
+    def _onchange_player2(self):
+        if self.player1:
+            if self.player1.id == self.player2.id:
+                self.player2 = False
+                return {
+                    'warning': {
+                        'title': "Players must be different",
+                        'message': "Player 1 is the same as Player 2",
+                    }
+                }
+        return {
+            'domain': {'player2_region': [('leader', '=', self.player2.id)],
+                       'player1': [('id', '!=', self.player2.id)]},
         }
 
 

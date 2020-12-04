@@ -53,6 +53,21 @@
             </field>
         </record>
 
+        <!-- Battle tree -->
+        <record model="ir.ui.view" id="game.battle_list">
+            <field name="name">Battles</field>
+            <field name="model">game.battle</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="player1"/>
+                    <field name="player2"/>
+                    <field name="player1_region"/>
+                    <field name="player2_region"/>
+                </tree>
+            </field>
+        </record>
+
         <!-- FORM -->
         <!-- Player form -->
         <record model="ir.ui.view" id="game.player_changes_graph">
@@ -384,6 +399,32 @@
             </field>
         </record>
 
+        <!-- Battle form -->
+
+        <record model="ir.ui.view" id="game.battle_form">
+            <field name="name">Battles</field>
+            <field name="model">game.battle</field>
+            <field name="arch" type="xml">
+                <form string="Battle form">
+                    <sheet>
+                        <field name="name"/>
+                        <group>
+                            <group>
+                                <separator string="Players"/>
+                                <field name="player1"/>
+                                <field name="player2"/>
+                            </group>
+                            <group>
+                                <separator string="Regions"/>
+                                <field name="player1_region"/>
+                                <field name="player2_region"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
         <!-- KANBAN -->
         <!-- Player Kanbam -->
         <record model="ir.ui.view" id="game.player_kanban">
@@ -517,6 +558,20 @@
             </field>
         </record>
 
+        <!-- Region search -->
+        <record model="ir.ui.view" id="game.region_search">
+            <field name="name">Region search</field>
+            <field name="model">game.region</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="leader"/>
+                    <filter name="cities" string="Rich regions" domain="[('cities', '>=', '2')]"/>
+                    <filter name="group_by_player" string="Group by player" context="{'group_by' : 'leader'}"/>
+                </search>
+            </field>
+        </record>
+
         <!-- actions opening views on models -->
 
         <record model="ir.actions.act_window" id="game.player_action_window">
@@ -548,6 +603,11 @@
             <field name="name">Player changes</field>
             <field name="res_model">game.player_changes</field>
             <field name="view_mode">tree,form,graph</field>
+        </record>
+        <record model="ir.actions.act_window" id="game.battle_action_window">
+            <field name="name">Battles</field>
+            <field name="res_model">game.battle</field>
+            <field name="view_mode">tree,form</field>
         </record>
 
 
@@ -588,6 +648,8 @@
                   action="game.region_action_window"/>
         <menuitem name="Travels" id="game.menu_1_travel" parent="game.menu_1"
                   action="game.travel_action_window"/>
+        <menuitem name="Battles" id="game.menu_1_battle" parent="game.menu_1"
+                  action="game.battle_action_window"/>
 
         <!-- Aux menu -->
         <menuitem name="Player changes" id="game.menu_1_p_changes" parent="game.menu_2"

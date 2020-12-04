@@ -1,30 +1,434 @@
 <odoo>
     <data>
-<!--
-          <record id="object0" model="game.game">
-            <field name="name">Object 0</field>
-            <field name="value">0</field>
-          </record>
+        <!-- Players -->
+        <record id="game.player_1" model="game.player">
+            <field name="name">Hombre Lobo 01</field>
+            <field name="photo">
+            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
+CuHYMuYXEagWBcH4fu6groQc3q2+MdhwCnTsggA0AG0Z+TShLMOlompMUKZrQKD2NFWViym315CA
+nGONPLkdpewJCgK1mzE2tl5iB+HBqicGJO+3j8gI9p8J+nVbubmlpSQo5PMHLyEFA9G0NfUyZcub
+NFg4vbNc28RyNo8xavScAQbg+0QZ4mpS1IxtqmVh6tDb1RzyXdTobruD1B1BggoKPLGWBGISbC/W
+Cvad2B+KVAyE/dUn3QDI57ik3NNI5DT5xZphYQLWZdiepvFv6QIUoGaN7xpeGqRJpdT6QFxaMfhs
+ma+suU7eIUke2NTwtR1cueG7CYFO/d+HWBKSXrMk34dBwlFmyBfdlZD4EAp8oUVMEp58tpoKBFL5
+1zsqbjXQm41AhRP/AGeL/oP+Kf4cWSJ1j2FFxR6RbkiFCjAHNEtLuIUKCY2eFDu+qLsjeFCgiBKq
+Pdik20KFAZgrw6LJMPMSptj0gr+z1R/ZyabqSfEljcnxhQoDGRZxIfUt5fnHJfsy/N/cxhQoyMy2
+5+EC8a/4T/ut8IUKMzRMINoMcOywXNwDpzAMewo5JnSgniFS6TLI7KLDRSQPYIira+aV1mvpt320
+8tY9hRx8vqOni8YMk1cwnWY5/wAx+cKFCguK/Bk2f//Z
+            </field>
+            <field name="race">1</field>
+            <field name="clan" ref="game.clan_1"/>
+            <field name="level">71</field>
+            <field name="points">14530</field>
+            <field name="won_battles">143</field>
+            <field name="lost_battles">34</field>
+            <field name="description">Description Hombre Lobo 01</field>
+        </record>
+        <record id="game.player_2" model="game.player">
+            <field name="name">Hombre Lobo 02</field>
+            <field name="photo">
+            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
+            </field>
+            <field name="race">1</field>
+            <field name="clan" ref="game.clan_1"/>
+            <field name="level">29</field>
+            <field name="points">6821</field>
+            <field name="won_battles">14</field>
+            <field name="lost_battles">2</field>
+            <field name="description">Description Hombre Lobo 02</field>
+        </record>
+        <record id="game.player_3" model="game.player">
+            <field name="name">Vampiro 01</field>
+            <field name="photo">
+            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
+X2FI9jIcj5L0jt5RkZGQwD//2Q==
+            </field>
+            <field name="race">2</field>
+            <field name="clan" ref="game.clan_2"/>
+            <field name="level">43</field>
+            <field name="points">9755</field>
+            <field name="won_battles">41</field>
+            <field name="lost_battles">37</field>
+            <field name="description">Description Vampiro 01</field>
+        </record>
 
-          <record id="object1" model="game.game">
-            <field name="name">Object 1</field>
-            <field name="value">10</field>
-          </record>
+        <!-- Clans -->
+        <record id="game.clan_1" model="game.clan">
+            <field name="name">Clan HL01</field>
+            <field name="level">4</field>
+        </record>
+        <record id="game.clan_2" model="game.clan">
+            <field name="name">Clan V01</field>
+            <field name="level">1</field>
+        </record>
 
-          <record id="object2" model="game.game">
-            <field name="name">Object 2</field>
-            <field name="value">20</field>
-          </record>
+        <!-- Regions -->
+        <record id="game.region_1" model="game.region">
+            <field name="name">Region 01</field>
+            <field name="leader" ref="game.player_1"/>
+            <field name="fortress_level">2</field>
+        </record>
+        <record id="game.region_2" model="game.region">
+            <field name="name">Region 02</field>
+            <field name="leader" ref="game.player_1"/>
+            <field name="fortress_level">1</field>
+        </record>
+        <record id="game.region_3" model="game.region">
+            <field name="name">Region 03</field>
+            <field name="leader" ref="game.player_2"/>
+            <field name="fortress_level">3</field>
+        </record>
+        <record id="game.region_4" model="game.region">
+            <field name="name">Region 04</field>
+            <field name="leader" ref="game.player_3"/>
+            <field name="fortress_level">1</field>
+        </record>
 
-          <record id="object3" model="game.game">
-            <field name="name">Object 3</field>
-            <field name="value">30</field>
-          </record>
-
-          <record id="object4" model="game.game">
-            <field name="name">Object 4</field>
-            <field name="value">40</field>
-          </record>
--->
+        <!-- Characters -->
+        <record id="game.character_1" model="game.character">
+            <field name="name">Character 01</field>
+            <field name="level">3</field>
+            <field name="player_leader" ref="game.player_1"/>
+            <field name="region" ref="game_region_1"/>
+            <field name="mining_level">3</field>
+            <field name="hunting_level">1</field>
+            <field name="gathering_level">5</field>
+        </record>
+        <record id="game.character_2" model="game.character">
+            <field name="name">Character 02</field>
+            <field name="level">1</field>
+            <field name="player_leader" ref="game.player_1"/>
+            <field name="region" ref="game_region_1"/>
+            <field name="mining_level">1</field>
+            <field name="hunting_level">1</field>
+            <field name="gathering_level">1</field>
+        </record>
+        <record id="game.character_3" model="game.character">
+            <field name="name">Character 03</field>
+            <field name="level">2</field>
+            <field name="player_leader" ref="game.player_1"/>
+            <field name="region" ref="game_region_2"/>
+            <field name="mining_level">1</field>
+            <field name="hunting_level">2</field>
+            <field name="gathering_level">2</field>
+        </record>
+        <record id="game.character_4" model="game.character">
+            <field name="name">Character 04</field>
+            <field name="level">2</field>
+            <field name="player_leader" ref="game.player_2"/>
+            <field name="region" ref="game_region_3"/>
+            <field name="mining_level">2</field>
+            <field name="hunting_level">2</field>
+            <field name="gathering_level">2</field>
+        </record>
+        <record id="game.character_5" model="game.character">
+            <field name="name">Character 05</field>
+            <field name="level">1</field>
+            <field name="player_leader" ref="game.player_3"/>
+            <field name="region" ref="game_region_4"/>
+            <field name="mining_level">2</field>
+            <field name="hunting_level">1</field>
+            <field name="gathering_level">1</field>
+        </record>
     </data>
 </odoo>
