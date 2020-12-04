@@ -1,5 +1,15 @@
 <odoo>
     <data>
+        <!-- Clans -->
+        <record id="game.clan_1" model="game.clan">
+            <field name="name">Clan HL01</field>
+            <field name="level">4</field>
+        </record>
+        <record id="game.clan_2" model="game.clan">
+            <field name="name">Clan V01</field>
+            <field name="level">1</field>
+        </record>
+
         <!-- Players -->
         <record id="game.player_1" model="game.player">
             <field name="name">Hombre Lobo 01</field>
@@ -350,16 +360,6 @@ X2FI9jIcj5L0jt5RkZGQwD//2Q==
             <field name="won_battles">41</field>
             <field name="lost_battles">37</field>
             <field name="description">Description Vampiro 01</field>
-        </record>
-
-        <!-- Clans -->
-        <record id="game.clan_1" model="game.clan">
-            <field name="name">Clan HL01</field>
-            <field name="level">4</field>
-        </record>
-        <record id="game.clan_2" model="game.clan">
-            <field name="name">Clan V01</field>
-            <field name="level">1</field>
         </record>
 
         <!-- Regions -->

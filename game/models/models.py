@@ -133,12 +133,14 @@ class region(models.Model):
         #regions = self.env['game.region'].search([])
         #regions.calculate_production()
 
+# travel són les batalles
 class travel(models.Model):
     _name = 'game.travel'
     _description = 'game.travel'
 
     name = fields.Char(default='Travel', compute='_get_travel_name')
     player = fields.Many2one('game.player')
+    player2 = fields.Many2one('game.player')
     launch_time = fields.Datetime(default=lambda t: fields.Datetime.now(), readonly=True)
     battle_time = fields.Datetime(compute='_get_battle_time')
     origin_region = fields.Many2one('game.region', required=True, ondelete='restrict')
@@ -175,35 +177,10 @@ class travel(models.Model):
                 t.name += ' FINISHED'
 
     @api.onchange('player')
-    def _onchange_player(self):
-        return {
-                'domain': {'origin_region': [('leader', '=', self.player.id)],
-                           'destiny_region': [('leader', '!=', self.player.id)]}
-        }
-
-class battle(models.Model):
-    _name = 'game.battle'
-    _description = 'game.battle'
-
-    name = fields.Char(compute='_get_battle_name')
-    player1 = fields.Many2one('game.player')
-    player2 = fields.Many2one('game.player')
-    player1_region = fields.Many2one('game.region', required=True, ondelete='restrict')
-    player2_region = fields.Many2one('game.region', required=True, ondelete='restrict')
-
-    @api.depends('player1', 'player2')
-    def _get_battle_name(self):
-        for b in self:
-            if b.player1.name is False or b.player2.name is False:
-                b.name = "Battle name"
-            else:
-                b.name = str(b.player1.name) + " vs " + str(b.player2.name)
-
-    @api.onchange('player1')
     def _onchange_player1(self):
         if self.player2:
-            if self.player1.id == self.player2.id:
-                self.player1 = False
+            if self.player.id == self.player2.id:
+                self.player = False
                 return {
                     'warning': {
                         'title': "Players must be different",
@@ -211,14 +188,14 @@ class battle(models.Model):
                     }
                 }
         return {
-            'domain': {'player1_region': [('leader', '=', self.player1.id)],
-                       'player2': [('id', '!=', self.player1.id)]},
+            'domain': {'origin_region': [('leader', '=', self.player.id)],
+                       'player2': [('id', '!=', self.player.id)]},
         }
 
     @api.onchange('player2')
     def _onchange_player2(self):
-        if self.player1:
-            if self.player1.id == self.player2.id:
+        if self.player:
+            if self.player.id == self.player2.id:
                 self.player2 = False
                 return {
                     'warning': {
@@ -227,7 +204,7 @@ class battle(models.Model):
                     }
                 }
         return {
-            'domain': {'player2_region': [('leader', '=', self.player2.id)],
+            'domain': {'destiny_region': [('leader', '=', self.player2.id)],
                        'player1': [('id', '!=', self.player2.id)]},
         }
 
