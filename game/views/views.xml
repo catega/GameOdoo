@@ -146,7 +146,7 @@
                                         context="{'default_player_leader':active_id}"></button>
                             </page>
                             <page string="Active Travels">
-                                <field name="active_travels" context="{'default_player': active_id}"/>
+                                <field name="active_travels"/><!--context="{'default_player': active_id}"-->
                                 <!-- Cambiar lo del context o crear battles-->
                             </page>
                         </notebook>
@@ -238,9 +238,12 @@
                                     </kanban>
                                 </field>
                             </page>
-                            <page string="Regions">
-                                <field name="regions"/>
+                            <page string="Alliances">
+                                <field name="alliances"/>
                             </page>
+                            <!--<page string="Regions">
+                                <field name="regions"/>
+                            </page>-->
                         </notebook>
                     </sheet>
                 </form>
@@ -386,6 +389,22 @@
                 <calendar string="Travel Calendar" date_start="launch_time" date_stop="battle_time" color="player">
                     <field name="name"/>
                 </calendar>
+            </field>
+        </record>
+
+        <!-- Alliance form -->
+        <record model="ir.ui.view" id="game.alliance_form">
+            <field name="name">Alliances</field>
+            <field name="model">game.alliance</field>
+            <field name="arch" type="xml">
+                <form string="Alliance form">
+                    <sheet>
+                        <field name="name"/>
+                        <group>
+                            <field name="clans"/>
+                        </group>
+                    </sheet>
+                </form>
             </field>
         </record>
 
@@ -568,6 +587,11 @@
             <field name="res_model">game.player_changes</field>
             <field name="view_mode">tree,form,graph</field>
         </record>
+        <record model="ir.actions.act_window" id="game.alliance_action_window">
+            <field name="name">Alliances</field>
+            <field name="res_model">game.alliance</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 
 
         <!-- server action to the one above -->
@@ -607,6 +631,8 @@
                   action="game.region_action_window"/>
         <menuitem name="Travels" id="game.menu_1_travel" parent="game.menu_1"
                   action="game.travel_action_window"/>
+        <menuitem name="Alliances" id="game.menu_1_alliance" parent="game.menu_1"
+                  action="game.alliance_action_window"/>
 
         <!-- Aux menu -->
         <menuitem name="Player changes" id="game.menu_1_p_changes" parent="game.menu_2"

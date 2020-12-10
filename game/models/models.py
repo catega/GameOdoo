@@ -38,7 +38,6 @@ class player(models.Model):
         [('1', 'Rookie'), ('2', 'Soldier'), ('3', 'Captain'), ('4', 'General'), ('5', 'Warlord')], default='1')
     player_changes = fields.One2many('game.player_changes', 'player')
     # Plenar player_changes
-
     @api.depends('won_battles', 'lost_battles')
     def _get_percent_battles(self):
         for p in self:
@@ -52,7 +51,8 @@ class clan(models.Model):
     name = fields.Char()
     level = fields.Integer(default=1, readonly=True)
     members = fields.One2many('game.player', 'clan')
-    regions = fields.One2many('game.region', 'leader_clan', compute='_get_regions')
+    #regions = fields.One2many('game.region', 'leader_clan', compute='_get_regions')
+    alliances = fields.Many2many('game.alliance')
 
     @api.depends('members')
     def _get_regions(self):
@@ -217,3 +217,11 @@ class player_changes(models.Model):
     player = fields.Many2one('game.player', ondelete='cascade', required=True)
     percent = fields.Integer()
     time = fields.Char()
+
+# Falta fer el tree i el form
+class alliance(models.Model):
+    _name = 'game.alliance'
+    _description = 'game.alliance'
+
+    name = fields.Char()
+    clans = fields.Many2many('game.clan')
