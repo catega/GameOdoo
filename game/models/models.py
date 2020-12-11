@@ -65,13 +65,13 @@ class character(models.Model):
     _name = 'game.character'
     _description = 'game.character'
 
-    name = fields.Char()
-    level = fields.Integer(default=1)
+    name = fields.Char(default=name_generator)
+    level = fields.Integer(default=1, readonly=True)
     player_leader = fields.Many2one('game.player', readonly=True)
     region = fields.Many2one('game.region')
-    mining_level = fields.Integer(default=1)
-    hunting_level = fields.Integer(default=1)
-    gathering_level = fields.Integer(default=1)
+    mining_level = fields.Integer(default=1, readonly=True)
+    hunting_level = fields.Integer(default=1, readonly=True)
+    gathering_level = fields.Integer(default=1, readonly=True)
 
 
 class region(models.Model):
@@ -127,11 +127,32 @@ class region(models.Model):
     def random_generator(self, a, b):
         return random.randint(a, b)
 
+# Arreglar
+    def calculate_production(self):
+        for p in self:
+            if p.leader:
+                new_iron = p.iron_production * 0.001
+                new_wood = p.wood_production * 0.001
+                new_food = p.food_production * 0.001
+                new_gold = p.gold_production * 0.001
+
+                final_iron = p.iron + new_iron
+                final_wood = p.wood + new_wood
+                final_food = p.food + new_food
+                final_gold = p.gold + new_gold
+
+                p.write({
+                    'iron': final_iron,
+                    'wood': final_wood,
+                    'food': final_food,
+                    'gold': final_gold
+                })
+
     @api.model
     def update_resources(self):
         print("-----------Update--------------")
-        #regions = self.env['game.region'].search([])
-        #regions.calculate_production()
+        regions = self.env['game.region'].search([])
+        regions.calculate_production()
 
 # travel són les batalles
 class travel(models.Model):
@@ -218,7 +239,6 @@ class player_changes(models.Model):
     percent = fields.Integer()
     time = fields.Char()
 
-# Falta fer el tree i el form
 class alliance(models.Model):
     _name = 'game.alliance'
     _description = 'game.alliance'

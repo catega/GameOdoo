@@ -389,7 +389,7 @@ X2FI9jIcj5L0jt5RkZGQwD//2Q==
             <field name="name">Character 01</field>
             <field name="level">3</field>
             <field name="player_leader" ref="game.player_1"/>
-            <field name="region" ref="game_region_1"/>
+            <field name="region" ref="game.region_1"/>
             <field name="mining_level">3</field>
             <field name="hunting_level">1</field>
             <field name="gathering_level">5</field>
@@ -398,7 +398,7 @@ X2FI9jIcj5L0jt5RkZGQwD//2Q==
             <field name="name">Character 02</field>
             <field name="level">1</field>
             <field name="player_leader" ref="game.player_1"/>
-            <field name="region" ref="game_region_1"/>
+            <field name="region" ref="game.region_1"/>
             <field name="mining_level">1</field>
             <field name="hunting_level">1</field>
             <field name="gathering_level">1</field>
@@ -407,7 +407,7 @@ X2FI9jIcj5L0jt5RkZGQwD//2Q==
             <field name="name">Character 03</field>
             <field name="level">2</field>
             <field name="player_leader" ref="game.player_1"/>
-            <field name="region" ref="game_region_2"/>
+            <field name="region" ref="game.region_2"/>
             <field name="mining_level">1</field>
             <field name="hunting_level">2</field>
             <field name="gathering_level">2</field>
@@ -416,7 +416,7 @@ X2FI9jIcj5L0jt5RkZGQwD//2Q==
             <field name="name">Character 04</field>
             <field name="level">2</field>
             <field name="player_leader" ref="game.player_2"/>
-            <field name="region" ref="game_region_3"/>
+            <field name="region" ref="game.region_3"/>
             <field name="mining_level">2</field>
             <field name="hunting_level">2</field>
             <field name="gathering_level">2</field>
@@ -425,7 +425,7 @@ X2FI9jIcj5L0jt5RkZGQwD//2Q==
             <field name="name">Character 05</field>
             <field name="level">1</field>
             <field name="player_leader" ref="game.player_3"/>
-            <field name="region" ref="game_region_4"/>
+            <field name="region" ref="game.region_4"/>
             <field name="mining_level">2</field>
             <field name="hunting_level">1</field>
             <field name="gathering_level">1</field>
