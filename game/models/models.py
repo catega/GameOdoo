@@ -30,6 +30,7 @@ class player(models.Model):
     time = fields.Char()
     description = fields.Text()
     regions = fields.One2many('game.region', 'leader')
+    enemy_regions = fields.Many2many('game.region', compute="_get_enemy_regions")
     clan = fields.Many2one('game.clan')
     characters = fields.One2many('game.character', 'player_leader')
     active_travels = fields.One2many('game.travel', 'player')
@@ -43,6 +44,20 @@ class player(models.Model):
         for p in self:
             total = p.won_battles + p.lost_battles
             p.percent_battles = (p.won_battles * 100) / total
+    # Fer tamé el filtro de regions sense player
+    def filter_regions(self, r, p):
+        if r.fortress_level != 0:
+            if r.leader.race != p.race:
+                return True
+            else:
+                return False
+
+        return False
+
+    def _get_enemy_regions(self):
+        for p in self:
+            e_regions = self.env['game.region'].search([]).filtered(lambda r: self.filter_regions(r, p))
+            p.enemy_regions = e_regions.ids
 
 class clan(models.Model):
     _name = 'game.clan'
@@ -67,13 +82,13 @@ class character(models.Model):
 
     name = fields.Char(default=name_generator)
     level = fields.Integer(default=1, readonly=True)
-    player_leader = fields.Many2one('game.player', readonly=True)
+    player_leader = fields.Many2one('game.player')
     region = fields.Many2one('game.region')
-    mining_level = fields.Integer(default=1, readonly=True)
-    hunting_level = fields.Integer(default=1, readonly=True)
-    gathering_level = fields.Integer(default=1, readonly=True)
+    mining_level = fields.Integer(default=1)
+    hunting_level = fields.Integer(default=1)
+    gathering_level = fields.Integer(default=1)
 
-
+# Cambiar la creació de characters desde botó así
 class region(models.Model):
     _name = 'game.region'
     _description = 'game.region'
@@ -127,14 +142,14 @@ class region(models.Model):
     def random_generator(self, a, b):
         return random.randint(a, b)
 
-# Arreglar
+# Falta ajustar per a que agarre recursos depenent dels characters i el seu level de arreplegar cada uno
     def calculate_production(self):
         for p in self:
             if p.leader:
-                new_iron = p.iron_production * 0.001
-                new_wood = p.wood_production * 0.001
-                new_food = p.food_production * 0.001
-                new_gold = p.gold_production * 0.001
+                new_iron = p.iron_production * 0.01
+                new_wood = p.wood_production * 0.01
+                new_food = p.food_production * 0.01
+                new_gold = p.gold_production * 0.01
 
                 final_iron = p.iron + new_iron
                 final_wood = p.wood + new_wood

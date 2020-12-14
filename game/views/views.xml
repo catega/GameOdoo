@@ -112,6 +112,9 @@
                             <page string="Regions">
                                 <field name="regions"/>
                             </page>
+                            <page string="Enemy regions">
+                                <field name="enemy_regions"/>
+                            </page>
                             <page string="Characters">
                                 <field name="characters" context="{'default_player_leader': active_id}">
                                     <kanban>
