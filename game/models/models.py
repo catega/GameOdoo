@@ -16,11 +16,13 @@ def name_generator(self):
 
 
 class player(models.Model):
-    _name = 'game.player'
-    _description = 'game.player'
+    _inherit = 'res.partner'
+    _name = 'res.partner'
+    _description = 'res.partner'
 
     photo = fields.Image(max_width=120, max_height=120)
-    name = fields.Char()
+    #name = fields.Char()
+    is_player = fields.Boolean(default=True)
     race = fields.Selection([('1', 'Hombre lobo'), ('2', 'Vampiro')])
     level = fields.Integer(default=1)
     points = fields.Integer()
@@ -38,6 +40,9 @@ class player(models.Model):
     battle_status = fields.Selection(
         [('1', 'Rookie'), ('2', 'Soldier'), ('3', 'Captain'), ('4', 'General'), ('5', 'Warlord')], default='1')
     player_changes = fields.One2many('game.player_changes', 'player')
+
+    _sql_constraints = [('name_uniq', 'unique(name)', 'Name already in use')]
+
     # Plenar player_changes
     @api.depends('won_battles', 'lost_battles')
     def _get_percent_battles(self):
@@ -65,7 +70,7 @@ class clan(models.Model):
 
     name = fields.Char()
     level = fields.Integer(default=1, readonly=True)
-    members = fields.One2many('game.player', 'clan')
+    members = fields.One2many('res.partner', 'clan')
     #regions = fields.One2many('game.region', 'leader_clan', compute='_get_regions')
     alliances = fields.Many2many('game.alliance')
 
@@ -82,7 +87,7 @@ class character(models.Model):
 
     name = fields.Char(default=name_generator)
     level = fields.Integer(default=1, readonly=True)
-    player_leader = fields.Many2one('game.player')
+    player_leader = fields.Many2one('res.partner')
     region = fields.Many2one('game.region')
     mining_level = fields.Integer(default=1)
     hunting_level = fields.Integer(default=1)
@@ -96,7 +101,7 @@ class region(models.Model):
     name = fields.Char(default=name_generator)
     fortress_level = fields.Integer(default=0, compute='_get_fortress_level')
     max_characters = fields.Integer(default=0, compute='_get_max_characters')
-    leader = fields.Many2one('game.player')
+    leader = fields.Many2one('res.partner')
     leader_clan = fields.Many2one('game.clan', compute='_get_leader_clan')
     characters = fields.One2many('game.character', 'region')
     mines = fields.Integer(default=lambda self : self.random_generator(1, 5))
@@ -175,8 +180,8 @@ class travel(models.Model):
     _description = 'game.travel'
 
     name = fields.Char(default='Travel', compute='_get_travel_name')
-    player = fields.Many2one('game.player')
-    player2 = fields.Many2one('game.player')
+    player = fields.Many2one('res.partner')
+    player2 = fields.Many2one('res.partner')
     launch_time = fields.Datetime(default=lambda t: fields.Datetime.now(), readonly=True)
     battle_time = fields.Datetime(compute='_get_battle_time')
     origin_region = fields.Many2one('game.region', required=True, ondelete='restrict')
@@ -210,7 +215,7 @@ class travel(models.Model):
             t.time_remaining = (100 * passed.seconds) / (t.travel_duration * 60)
             if t.time_remaining > 100:
                 t.time_remaining = 0
-                t.name += ' FINISHED'
+                t.name += ' [FINISHED]'
 
     @api.onchange('player')
     def _onchange_player1(self):
@@ -250,7 +255,7 @@ class player_changes(models.Model):
     _description = 'game.player_changes'
 
     name = fields.Char()
-    player = fields.Many2one('game.player', ondelete='cascade', required=True)
+    player = fields.Many2one('res.partner', ondelete='cascade', required=True)
     percent = fields.Integer()
     time = fields.Char()
 

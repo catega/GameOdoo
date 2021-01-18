@@ -6,7 +6,7 @@
         <!-- Player tree -->
         <record model="ir.ui.view" id="game.player_list">
             <field name="name">Players</field>
-            <field name="model">game.player</field>
+            <field name="model">res.partner</field>
             <field name="arch" type="xml">
                 <tree>
                     <field name="image_small" widget="image"/>
@@ -86,7 +86,7 @@
 
         <record model="ir.ui.view" id="game.player_form">
             <field name="name">Players</field>
-            <field name="model">game.player</field>
+            <field name="model">res.partner</field>
             <field name="arch" type="xml">
                 <form string="Player form">
                     <header>
@@ -106,6 +106,91 @@
                                 <field name="won_battles"/>
                                 <field name="lost_battles"/>
                                 <field name="clan"/>
+                            </group>
+                            <group>
+                                <field name="is_player"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Regions">
+                                <field name="regions"/>
+                            </page>
+                            <page string="Enemy regions">
+                                <field name="enemy_regions"/>
+                            </page>
+                            <page string="Characters">
+                                <field name="characters" context="{'default_player_leader': active_id}">
+                                    <kanban>
+                                        <!--list of field to be loaded -->
+                                        <field name="name"/>
+                                        <field name="id"/>
+                                        <field name="region"/>
+                                        <field name='level'/>
+
+                                        <templates>
+                                            <t t-name="kanban-box">
+                                                <div class="oe_product_vignette">
+                                                    <div class="oe_product_desc">
+                                                        <h4>
+                                                            <a type="edit">
+                                                                <field name="name"/>
+                                                            </a>
+                                                        </h4>
+                                                        <p>
+                                                            <b>Level:</b>
+                                                            <field name="level"/>
+                                                            <br/>
+                                                            <field name="region"/>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </templates>
+                                    </kanban>
+                                </field>
+                                <button name="%(game.add_character)d" type="action" string="Add character" icon="fa-bolt"
+                                        context="{'default_player_leader':active_id}"></button>
+                            </page>
+                            <page string="Active Travels">
+                                <field name="active_travels"/><!--context="{'default_player': active_id}"-->
+                                <!-- Cambiar lo del context o crear battles-->
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <footer>
+                        <button name="%(game.launch_player_changes_graph)d" type="action" string="Show Graph"
+                                        class="oe_highlight"></button>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Player inherit form -->
+        <record model="ir.ui.view" id="game.player_inherit_form">
+            <field name="name">Players</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <form string="Player form">
+                    <header>
+                        <field name="battle_status" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <field name="photo" widget="image"/>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="description"/>
+                                <field name="race"/>
+                            </group>
+                            <group>
+                                <field name="level"/>
+                                <field name="points"/>
+                                <field name="won_battles"/>
+                                <field name="lost_battles"/>
+                                <field name="clan"/>
+                            </group>
+                            <group>
+                                <field name="is_player"/>
                             </group>
                         </group>
                         <notebook>
@@ -218,7 +303,7 @@
                                                         <a type="open">
                                                             <img class="o_image_64_contain"
                                                                  t-att-alt="record.name.value"
-                                                                 t-att-src="kanban_image('game.player', 'photo', record.id.raw_value)"/>
+                                                                 t-att-src="kanban_image('res.partner', 'photo', record.id.raw_value)"/>
                                                         </a>
                                                     </div>
                                                     <div class="oe_product_desc">
@@ -415,7 +500,7 @@
         <!-- Player Kanbam -->
         <record model="ir.ui.view" id="game.player_kanban">
             <field name="name">Players</field>
-            <field name="model">game.player</field>
+            <field name="model">res.partner</field>
             <field name="arch" type="xml">
                 <kanban>
                     <!--list of field to be loaded -->
@@ -433,7 +518,7 @@
                                     <a type="open">
                                         <img class="o_image_64_contain"
                                              t-att-alt="record.name.value"
-                                             t-att-src="kanban_image('game.player', 'photo', record.id.raw_value)"/>
+                                             t-att-src="kanban_image('res.partner', 'photo', record.id.raw_value)"/>
                                     </a>
                                 </div>
                                 <div class="oe_product_desc">
@@ -516,7 +601,7 @@
         <!-- Player search -->
         <record model="ir.ui.view" id="game.player_search">
             <field name="name">Player search</field>
-            <field name="model">game.player</field>
+            <field name="model">res.partner</field>
             <field name="arch" type="xml">
                 <search>
                     <field name="name"/>
@@ -526,6 +611,7 @@
                     <field name="points"/>
                     <field name="clan"/>
                     <filter name="group_by_clan" string="Group by clan" context="{'group_by' : 'clan'}"/>
+                    <filter name="player_partner" string="Is Player" domain="[('is_player','=',True)]" />
                 </search>
             </field>
         </record>
@@ -562,8 +648,12 @@
 
         <record model="ir.actions.act_window" id="game.player_action_window">
             <field name="name">Players</field>
-            <field name="res_model">game.player</field>
+            <field name="res_model">res.partner</field>
             <field name="view_mode">tree,form,kanban</field>
+            <field name="context">{'default_is_player': True, 'search_default_player_partner': 1}</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('game.player_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('game.player_form')}),]"/>
         </record>
         <record model="ir.actions.act_window" id="game.clan_action_window">
             <field name="name">Clans</field>

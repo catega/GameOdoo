@@ -11,7 +11,7 @@
         </record>
 
         <!-- Players -->
-        <record id="game.player_1" model="game.player">
+        <record id="game.player_1" model="res.partner">
             <field name="name">Hombre Lobo 01</field>
             <field name="photo">
             /9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMTEhUTExIWFRUWGBUYGBgYFxUVFxcYFRgdFxgX
@@ -128,7 +128,7 @@ Pdik20KFAZgrw6LJMPMSptj0gr+z1R/ZyabqSfEljcnxhQoDGRZxIfUt5fnHJfsy/N/cxhQoyMy2
             <field name="lost_battles">34</field>
             <field name="description">Description Hombre Lobo 01</field>
         </record>
-        <record id="game.player_2" model="game.player">
+        <record id="game.player_2" model="res.partner">
             <field name="name">Hombre Lobo 02</field>
             <field name="photo">
             /9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMTERUTExMVFhUXFhcXGBgYFxgVFhcYFxgXGBcX
@@ -245,7 +245,7 @@ qp4/qPtkBktjxynWqq+Kysrijrhek+15Vlx7FZWU0FpKjH9dKysrKFB//9k=
             <field name="lost_battles">2</field>
             <field name="description">Description Hombre Lobo 02</field>
         </record>
-        <record id="game.player_3" model="game.player">
+        <record id="game.player_3" model="res.partner">
             <field name="name">Vampiro 01</field>
             <field name="photo">
             /9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMTEhUTExMWFRUXFxYaFxYYGBUVFxcYFxoXGBgY
