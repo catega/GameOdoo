@@ -75,6 +75,14 @@
                     target="new"
                     domain="[('player','=',active_id)]"/>
 
+        <!-- Wizard character -->
+        <act_window id="game.launch_character_wizard"
+                name="Crear Character"
+                binding_model="res.partner"
+                res_model="game.wizard_character"
+                view_mode="form"
+                target="new"/>
+        <!--
         <act_window
                 id="game.add_character"
                 name="Add character"
@@ -83,6 +91,7 @@
                 target="new"
                 domain="[('character','=',active_id)]"
         />
+        -->
 
         <record model="ir.ui.view" id="game.player_form">
             <field name="name">Players</field>
@@ -148,7 +157,7 @@
                                         </templates>
                                     </kanban>
                                 </field>
-                                <button name="%(game.add_character)d" type="action" string="Add character" icon="fa-bolt"
+                                <button name="%(game.launch_character_wizard)d" type="action" string="Add character" icon="fa-bolt"
                                         context="{'default_player_leader':active_id}"></button>
                             </page>
                             <page string="Active Travels">
@@ -230,7 +239,7 @@
                                         </templates>
                                     </kanban>
                                 </field>
-                                <button name="%(game.add_character)d" type="action" string="Add character" icon="fa-bolt"
+                                <button name="%(game.launch_character_wizard)d" type="action" string="Add character" icon="fa-bolt"
                                         context="{'default_player_leader':active_id}"></button>
                             </page>
                             <page string="Active Travels">
@@ -243,6 +252,44 @@
                         <button name="%(game.launch_player_changes_graph)d" type="action" string="Show Graph"
                                         class="oe_highlight"></button>
                     </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Wizard -->
+
+        <record model="ir.ui.view" id="game.wizard_character_form">
+            <field name="name">character wizard Form</field>
+            <field name="model">game.wizard_character</field>
+            <field name="arch" type="xml">
+                <form string="character">
+                    <header>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group states="global" string="Global">
+                            <group>
+                                <field name="name"/>
+                            </group>
+                            <group>
+                                <field name="player_leader"/>
+                                <field name="region"/>
+                            </group>
+                        </group>
+                        <group states="skills" string="Skills">
+                            <field name="mining_level"/>
+                            <field name="hunting_level"/>
+                            <field name="gathering_level"/>
+                            <footer>
+                                <button states="global" name="next" type="object"
+                                        string="Next" class="oe_highlight"/>
+                                <button states="skills" name="previous" type="object"
+                                    string="Previous" class="oe_highlight"/>
+                                <button states="skills" name="crear_character" type="object"
+                                    string="Create" class="oe_highlight"/>
+                            </footer>
+                        </group>
+                    </sheet>
                 </form>
             </field>
         </record>

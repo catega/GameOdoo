@@ -23,7 +23,7 @@ class player(models.Model):
     photo = fields.Image(max_width=120, max_height=120)
     #name = fields.Char()
     is_player = fields.Boolean(default=True)
-    race = fields.Selection([('1', 'Hombre lobo'), ('2', 'Vampiro')])
+    race = fields.Selection([('1', 'Hombre lobo'), ('2', 'Vampiro')], required=True)
     level = fields.Integer(default=1)
     points = fields.Integer()
     won_battles = fields.Integer(default=0)
