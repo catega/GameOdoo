@@ -82,6 +82,14 @@
                 res_model="game.wizard_character"
                 view_mode="form"
                 target="new"/>
+
+        <!-- Wizard travel -->
+        <act_window id="game.launch_travel_wizard"
+                name="Crear Travel"
+                binding_model="res.partner"
+                res_model="game.wizard_travel"
+                view_mode="form"
+                target="new"/>
         <!--
         <act_window
                 id="game.add_character"
@@ -163,6 +171,8 @@
                             <page string="Active Travels">
                                 <field name="active_travels"/><!--context="{'default_player': active_id}"-->
                                 <!-- Cambiar lo del context o crear battles-->
+                                <button name="%(game.launch_travel_wizard)d" type="action" string="Add travel" icon="fa-bolt"
+                                        context="{'default_player':active_id}"></button>
                             </page>
                         </notebook>
                     </sheet>
@@ -245,6 +255,8 @@
                             <page string="Active Travels">
                                 <field name="active_travels"/><!--context="{'default_player': active_id}"-->
                                 <!-- Cambiar lo del context o crear battles-->
+                                <button name="%(game.launch_travel_wizard)d" type="action" string="Add travel" icon="fa-bolt"
+                                        context="{'default_player':active_id}"></button>
                             </page>
                         </notebook>
                     </sheet>
@@ -256,7 +268,7 @@
             </field>
         </record>
 
-        <!-- Wizard -->
+        <!-- Wizard character -->
 
         <record model="ir.ui.view" id="game.wizard_character_form">
             <field name="name">character wizard Form</field>
@@ -286,6 +298,41 @@
                                 <button states="skills" name="previous" type="object"
                                     string="Previous" class="oe_highlight"/>
                                 <button states="skills" name="crear_character" type="object"
+                                    string="Create" class="oe_highlight"/>
+                            </footer>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Wizard travel -->
+
+        <record model="ir.ui.view" id="game.wizard_travel_form">
+            <field name="name">Travel wizard Form</field>
+            <field name="model">game.wizard_travel</field>
+            <field name="arch" type="xml">
+                <form string="travel">
+                    <header>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group states="player1" string="Player 1">
+                            <field name="player"/>
+                            <field name="origin_region"/>
+                        </group>
+                        <group states="player2" string="Player 2">
+                            <field name="player2"/>
+                            <field name="destiny_region"/>
+                        </group>
+                        <group states="name" string="Travel name">
+                            <field name="name"/>
+                            <footer>
+                                <button states="player1,player2" name="next" type="object"
+                                        string="Next" class="oe_highlight"/>
+                                <button states="player2,name" name="previous" type="object"
+                                    string="Previous" class="oe_highlight"/>
+                                <button states="name" name="crear_travel" type="object"
                                     string="Create" class="oe_highlight"/>
                             </footer>
                         </group>
