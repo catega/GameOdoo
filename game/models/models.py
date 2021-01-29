@@ -4,6 +4,8 @@ import string
 from datetime import datetime, timedelta
 
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
+
 
 def name_generator(self):
     letters = list(string.ascii_lowercase)
@@ -33,6 +35,7 @@ class player(models.Model):
     description = fields.Text()
     regions = fields.One2many('game.region', 'leader')
     enemy_regions = fields.Many2many('game.region', compute="_get_enemy_regions")
+    available_regions = fields.Many2many('game.region', compute="_get_available_regions")
     clan = fields.Many2one('game.clan')
     characters = fields.One2many('game.character', 'player_leader')
     active_travels = fields.One2many('game.travel', 'player')
@@ -64,6 +67,16 @@ class player(models.Model):
             e_regions = self.env['game.region'].search([]).filtered(lambda r: self.filter_regions(r, p))
             p.enemy_regions = e_regions.ids
 
+    def filter_available_regions(self, r):
+        if r.fortress_level == 0:
+            return True
+        return False
+
+    def _get_available_regions(self):
+        for p in self:
+            a_regions = self.env['game.region'].search([]).filtered(lambda r: self.filter_available_regions(r))
+            p.available_regions = a_regions.ids
+
 class clan(models.Model):
     _name = 'game.clan'
     _description = 'game.clan'
@@ -86,12 +99,35 @@ class character(models.Model):
     _description = 'game.character'
 
     name = fields.Char(default=name_generator)
-    level = fields.Integer(default=1, readonly=True)
-    player_leader = fields.Many2one('res.partner')
+    level = fields.Integer(default=1)
+    player_leader = fields.Many2one('res.partner', domain="[('is_player', '=', True)]")
     region = fields.Many2one('game.region')
+    health = fields.Integer(default=50)
+    attack = fields.Integer(default=lambda self : self.random_generator(1, 3))
+    defense = fields.Integer(default=lambda self: self.random_generator(1, 3))
+    speed = fields.Integer(default=lambda self: self.random_generator(1, 3))
     mining_level = fields.Integer(default=1)
     hunting_level = fields.Integer(default=1)
     gathering_level = fields.Integer(default=1)
+
+    @api.model
+    def random_generator(self, a, b):
+        return random.randint(a, b)
+
+    @api.onchange('player_leader')
+    def _onchange_player(self):
+        return {
+            'domain': {'region': [('leader', '=', self.player_leader.id)]}
+        }
+
+    @api.onchange('level')
+    def _levelUp_stats(self):
+        for c in self:
+            c.health = 40 + (c.level * 10)
+            # Cambiar lo dels stats
+            c.attack = c.attack + 1
+            c.defense = c.defense + 1
+            c.speed = c.speed + 1
 
 # Cambiar la creació de characters desde botó así
 class region(models.Model):
@@ -101,7 +137,7 @@ class region(models.Model):
     name = fields.Char(default=name_generator)
     fortress_level = fields.Integer(default=0, compute='_get_fortress_level')
     max_characters = fields.Integer(default=0, compute='_get_max_characters')
-    leader = fields.Many2one('res.partner')
+    leader = fields.Many2one('res.partner', domain="[('is_player', '=', True)]")
     leader_clan = fields.Many2one('game.clan', compute='_get_leader_clan')
     characters = fields.One2many('game.character', 'region')
     mines = fields.Integer(default=lambda self : self.random_generator(1, 5))
@@ -180,8 +216,8 @@ class travel(models.Model):
     _description = 'game.travel'
 
     name = fields.Char(default='Travel', compute='_get_travel_name')
-    player = fields.Many2one('res.partner')
-    player2 = fields.Many2one('res.partner')
+    player = fields.Many2one('res.partner', domain="[('is_player', '=', True)]")
+    player2 = fields.Many2one('res.partner', domain="[('is_player', '=', True)]")
     launch_time = fields.Datetime(default=lambda t: fields.Datetime.now(), readonly=True)
     battle_time = fields.Datetime(compute='_get_battle_time')
     origin_region = fields.Many2one('game.region', required=True, ondelete='restrict')
@@ -204,6 +240,14 @@ class travel(models.Model):
 
                 if t.travel_duration < 30:
                     t.travel_duration = 30
+
+    @api.constrains('travel_duration', 'origin_region')
+    def _check_food(self):
+        for t in self:
+            if t.travel_duration > t.origin_region.food:
+                raise ValidationError('Not enough food. '
+                                      '\nYou must have ' + str(t.travel_duration) + ' food to do this travel. '
+                                      '\nCurrent food: ' + str(t.origin_region.food))
 
     @api.depends('travel_duration')
     def _get_battle_time(self):
@@ -248,6 +292,40 @@ class travel(models.Model):
             'domain': {'destiny_region': [('leader', '=', self.player2.id)],
                        'player1': [('id', '!=', self.player2.id)]},
         }
+
+    def fight(self, a, b):
+        if (a.attack + 10) < b.defense:
+            return
+
+        b.health = b.health - ((a.attack + 10) - b.defense)
+
+        if b.health < 0:
+            b.health = 0
+
+    # Acabar
+    def battle(self):
+        for t in self:
+            at_chars = t.origin_region.characters
+            print()
+            def_chars = t.destiny_region.characters
+            rounds = 0
+            cont = 0
+
+            if len(at_chars) > len(def_chars):
+                rounds = len(def_chars)
+            else:
+                rounds = len(at_chars)
+
+            for f in range(0, rounds):
+                # Anar lunchant hasta que uno dels dos quede a 0 de vida
+                self.fight(at_chars[cont], def_chars[cont])
+                print('At: ' + str(at_chars[cont].health) + ' Def: ' + str(def_chars[cont].health))
+
+            # Comprobar que queden characters vius i tornar a fer ronda de combates
+
+
+
+
 
 
 class player_changes(models.Model):

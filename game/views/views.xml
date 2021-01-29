@@ -135,6 +135,9 @@
                             <page string="Enemy regions">
                                 <field name="enemy_regions"/>
                             </page>
+                            <page string="Available regions">
+                                <field name="available_regions"/>
+                            </page>
                             <page string="Characters">
                                 <field name="characters" context="{'default_player_leader': active_id}">
                                     <kanban>
@@ -219,6 +222,9 @@
                             <page string="Enemy regions">
                                 <field name="enemy_regions"/>
                             </page>
+                            <page string="Available regions">
+                                <field name="available_regions"/>
+                            </page>
                             <page string="Characters">
                                 <field name="characters" context="{'default_player_leader': active_id}">
                                     <kanban>
@@ -292,12 +298,18 @@
                             <field name="mining_level"/>
                             <field name="hunting_level"/>
                             <field name="gathering_level"/>
+                        </group>
+                        <group states="stats" string="Stats">
+                            <field name="health"/>
+                            <field name="attack"/>
+                            <field name="defense"/>
+                            <field name="speed"/>
                             <footer>
-                                <button states="global" name="next" type="object"
+                                <button states="global,skills" name="next" type="object"
                                         string="Next" class="oe_highlight"/>
-                                <button states="skills" name="previous" type="object"
+                                <button states="skills,stats" name="previous" type="object"
                                     string="Previous" class="oe_highlight"/>
-                                <button states="skills" name="crear_character" type="object"
+                                <button states="stats" name="crear_character" type="object"
                                     string="Create" class="oe_highlight"/>
                             </footer>
                         </group>
@@ -355,6 +367,13 @@
                                 <field name="level"/>
                                 <field name="player_leader"/>
                                 <field name="region"/>
+                            </group>
+                            <group>
+                                <separator string="Stats"/>
+                                <field name="health"/>
+                                <field name="attack"/>
+                                <field name="defense"/>
+                                <field name="speed"/>
                             </group>
                             <group>
                                 <separator string="Skill levels"/>
@@ -560,6 +579,9 @@
                             </group>
                         </group>
                     </sheet>
+                    <footer>
+                        <button name="battle" type="object" string="Battle" class="oe_highlight"/>
+                    </footer>
                 </form>
             </field>
         </record>
