@@ -106,6 +106,7 @@ class character(models.Model):
     attack = fields.Integer(default=lambda self : self.random_generator(1, 3))
     defense = fields.Integer(default=lambda self: self.random_generator(1, 3))
     speed = fields.Integer(default=lambda self: self.random_generator(1, 3))
+    defeated = fields.Boolean(default=False)
     mining_level = fields.Integer(default=1)
     hunting_level = fields.Integer(default=1)
     gathering_level = fields.Integer(default=1)
@@ -293,35 +294,94 @@ class travel(models.Model):
                        'player1': [('id', '!=', self.player2.id)]},
         }
 
-    def fight(self, a, b):
+    def turn(self, a, b):
         if (a.attack + 10) < b.defense:
-            return
-
-        b.health = b.health - ((a.attack + 10) - b.defense)
+            b.health = b.health - 1
+        else:
+            b.health = b.health - ((a.attack + 10) - b.defense)
 
         if b.health < 0:
             b.health = 0
+            b.defeated = True
+
+    def removeDefeated(self, a):
+        alive = []
+        for c in a:
+            if not c.defeated:
+                alive.append(c)
+
+        return alive
+
+
+    def checkChars(self, a):
+        if len(a) is 0:
+            return False
+
+        for c in a:
+            if not c.defeated:
+                return True
+
+        return False
+
+    def fight(self, a, b):
+        rd = True
+
+        while not a.defeated and not b.defeated:
+            if rd:
+                self.turn(a, b)
+            else:
+                self.turn(b, a)
+
+            if rd:
+                rd = False
+            else:
+                rd = True
 
     # Acabar
     def battle(self):
         for t in self:
             at_chars = t.origin_region.characters
-            print()
             def_chars = t.destiny_region.characters
             rounds = 0
-            cont = 0
+            contA = 0
+            contB = 0
 
             if len(at_chars) > len(def_chars):
-                rounds = len(def_chars)
+                rounds = len(def_chars) - 1
             else:
-                rounds = len(at_chars)
+                rounds = len(at_chars) - 1
 
-            for f in range(0, rounds):
-                # Anar lunchant hasta que uno dels dos quede a 0 de vida
-                self.fight(at_chars[cont], def_chars[cont])
-                print('At: ' + str(at_chars[cont].health) + ' Def: ' + str(def_chars[cont].health))
+            while self.checkChars(at_chars) and self.checkChars(def_chars):
+                for f in range(0, rounds):
+                    while not at_chars[contA].defeated and not def_chars[contB].defeated:
+                        self.fight(at_chars[contA], def_chars[contB])
 
-            # Comprobar que queden characters vius i tornar a fer ronda de combates
+                    if self.checkChars(at_chars) and self.checkChars(def_chars):
+                        at_chars = self.removeDefeated(at_chars)
+                        def_chars = self.removeDefeated(def_chars)
+
+                        if contA >= len(at_chars) - 1:
+                            contA = 0
+                        else:
+                            contA = contA + 1
+
+                        if contB >= len(def_chars) - 1:
+                            contB = 0
+                        else:
+                            contB = contB + 1
+
+                if len(at_chars) >= len(def_chars):
+                    rounds = len(def_chars)
+                else:
+                    rounds = len(at_chars)
+
+            if self.checkChars(at_chars):
+                t.player.won_battles = t.player.won_battles + 1
+                t.playe2.lost_battles = t.player2.lost_battles + 1
+                # Cambiar la regió
+            else:
+                t.player.lost_battles = t.player.lost_battles + 1
+                t.playe2.won_battles = t.player2.won_battles + 1
 
 
 

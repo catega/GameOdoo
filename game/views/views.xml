@@ -367,6 +367,7 @@
                                 <field name="level"/>
                                 <field name="player_leader"/>
                                 <field name="region"/>
+                                <field name="defeated"/>
                             </group>
                             <group>
                                 <separator string="Stats"/>
