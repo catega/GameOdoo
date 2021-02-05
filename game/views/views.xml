@@ -18,6 +18,26 @@
             </field>
         </record>
 
+        <record model="ir.ui.view" id="game.character_list">
+            <field name="name">Characters</field>
+            <field name="model">game.character</field>
+            <field name="arch" type="xml">
+                <tree decoration-danger="defeated">
+                    <field name="name"/>
+                    <field name="player_leader"/>
+                    <field name="region"/>
+                    <field name="level"/>
+                    <field name="attack"/>
+                    <field name="defense"/>
+                    <field name="speed"/>
+                    <field name="mining_level"/>
+                    <field name="gathering_level"/>
+                    <field name="hunting_level"/>
+                    <field name="defeated"/>
+                </tree>
+            </field>
+        </record>
+
         <!-- Region tree -->
         <record model="ir.ui.view" id="game.region_list">
             <field name="name">Regions</field>
@@ -78,7 +98,7 @@
         <!-- Wizard character -->
         <act_window id="game.launch_character_wizard"
                 name="Crear Character"
-                binding_model="res.partner"
+                binding_model="game.region"
                 res_model="game.wizard_character"
                 view_mode="form"
                 target="new"/>
@@ -168,8 +188,6 @@
                                         </templates>
                                     </kanban>
                                 </field>
-                                <button name="%(game.launch_character_wizard)d" type="action" string="Add character" icon="fa-bolt"
-                                        context="{'default_player_leader':active_id}"></button>
                             </page>
                             <page string="Active Travels">
                                 <field name="active_travels"/><!--context="{'default_player': active_id}"-->
@@ -255,8 +273,6 @@
                                         </templates>
                                     </kanban>
                                 </field>
-                                <button name="%(game.launch_character_wizard)d" type="action" string="Add character" icon="fa-bolt"
-                                        context="{'default_player_leader':active_id}"></button>
                             </page>
                             <page string="Active Travels">
                                 <field name="active_travels"/><!--context="{'default_player': active_id}"-->
@@ -270,50 +286,6 @@
                         <button name="%(game.launch_player_changes_graph)d" type="action" string="Show Graph"
                                         class="oe_highlight"></button>
                     </footer>
-                </form>
-            </field>
-        </record>
-
-        <!-- Wizard character -->
-
-        <record model="ir.ui.view" id="game.wizard_character_form">
-            <field name="name">character wizard Form</field>
-            <field name="model">game.wizard_character</field>
-            <field name="arch" type="xml">
-                <form string="character">
-                    <header>
-                        <field name="state" widget="statusbar"/>
-                    </header>
-                    <sheet>
-                        <group states="global" string="Global">
-                            <group>
-                                <field name="name"/>
-                            </group>
-                            <group>
-                                <field name="player_leader"/>
-                                <field name="region"/>
-                            </group>
-                        </group>
-                        <group states="skills" string="Skills">
-                            <field name="mining_level"/>
-                            <field name="hunting_level"/>
-                            <field name="gathering_level"/>
-                        </group>
-                        <group states="stats" string="Stats">
-                            <field name="health"/>
-                            <field name="attack"/>
-                            <field name="defense"/>
-                            <field name="speed"/>
-                            <footer>
-                                <button states="global,skills" name="next" type="object"
-                                        string="Next" class="oe_highlight"/>
-                                <button states="skills,stats" name="previous" type="object"
-                                    string="Previous" class="oe_highlight"/>
-                                <button states="stats" name="crear_character" type="object"
-                                    string="Create" class="oe_highlight"/>
-                            </footer>
-                        </group>
-                    </sheet>
                 </form>
             </field>
         </record>
@@ -542,8 +514,54 @@
                                         </templates>
                                     </kanban>
                                 </field>
+                                <button name="%(game.launch_character_wizard)d" type="action" string="Add character" icon="fa-bolt"
+                                        context="{'default_player_leader':leader}"></button>
                             </page>
                         </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Wizard character -->
+
+        <record model="ir.ui.view" id="game.wizard_character_form">
+            <field name="name">character wizard Form</field>
+            <field name="model">game.wizard_character</field>
+            <field name="arch" type="xml">
+                <form string="character">
+                    <header>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group states="global" string="Global">
+                            <group>
+                                <field name="name"/>
+                            </group>
+                            <group>
+                                <field name="player_leader"/>
+                                <field name="region"/>
+                            </group>
+                        </group>
+                        <group states="skills" string="Skills">
+                            <field name="mining_level"/>
+                            <field name="hunting_level"/>
+                            <field name="gathering_level"/>
+                        </group>
+                        <group states="stats" string="Stats">
+                            <field name="health"/>
+                            <field name="attack"/>
+                            <field name="defense"/>
+                            <field name="speed"/>
+                            <footer>
+                                <button states="global,skills" name="next" type="object"
+                                        string="Next" class="oe_highlight"/>
+                                <button states="skills,stats" name="previous" type="object"
+                                    string="Previous" class="oe_highlight"/>
+                                <button states="stats" name="crear_character" type="object"
+                                    string="Create" class="oe_highlight"/>
+                            </footer>
+                        </group>
                     </sheet>
                 </form>
             </field>
@@ -577,6 +595,10 @@
                             <group>
                                 <separator string="Time remaining percent"/>
                                 <field name="time_remaining" widget="percentpie"/>
+                            </group>
+                            <group>
+                                <separator string="Player winner"/>
+                                <field name="winner"/>
                             </group>
                         </group>
                     </sheet>

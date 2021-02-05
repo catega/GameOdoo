@@ -144,28 +144,3 @@ class wizard_travel(models.TransientModel):
             'domain': {'destiny_region': [('leader', '=', self.player2.id)],
                        'player1': [('id', '!=', self.player2.id)]},
         }
-
-    def _fight(self, a, b):
-        if (a.attack + 10) < b.defense:
-            return;
-
-        b.health = b.health - ((a.attack + 10) - b.defense)
-
-        if b.health < 0:
-            b.health = 0
-
-    def _battle(self):
-        for t in self:
-            at_chars = t.origin_region.characters
-            def_chars = t.destiny_region.characters
-            rounds = 0
-            cont = 0
-
-            if len(at_chars) > len(def_chars):
-                rounds = len(def_chars)
-            else:
-                rounds = len(at_chars)
-
-            for f in range(0, rounds - 1):
-                self._fight(at_chars[cont], def_chars[cont])
-                print('At: ' + str(at_chars[cont].health) + ' Def: ' + str(def_chars[cont].health))

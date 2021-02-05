@@ -121,11 +121,17 @@ class character(models.Model):
             'domain': {'region': [('leader', '=', self.player_leader.id)]}
         }
 
-    @api.onchange('level')
-    def _levelUp_stats(self):
+    @api.constrains('region')
+    def _check_chars(self):
+        for c in self:
+            if c.region.max_characters + 1 is len(c.region.characters):
+                raise ValidationError('Max characters amount reached. '
+                                      '\nThis region can only have ' + str(c.region.max_characters) + ' characters at the moment. '
+                                                                                    '\nLevel it up to get more slots')
+
+    def levelUp_stats(self):
         for c in self:
             c.health = 40 + (c.level * 10)
-            # Cambiar lo dels stats
             c.attack = c.attack + 1
             c.defense = c.defense + 1
             c.speed = c.speed + 1
@@ -219,6 +225,7 @@ class travel(models.Model):
     name = fields.Char(default='Travel', compute='_get_travel_name')
     player = fields.Many2one('res.partner', domain="[('is_player', '=', True)]")
     player2 = fields.Many2one('res.partner', domain="[('is_player', '=', True)]")
+    winner = fields.Many2one('res.partner')
     launch_time = fields.Datetime(default=lambda t: fields.Datetime.now(), readonly=True)
     battle_time = fields.Datetime(compute='_get_battle_time')
     origin_region = fields.Many2one('game.region', required=True, ondelete='restrict')
@@ -294,15 +301,22 @@ class travel(models.Model):
                        'player1': [('id', '!=', self.player2.id)]},
         }
 
-    def turn(self, a, b):
-        if (a.attack + 10) < b.defense:
-            b.health = b.health - 1
-        else:
-            b.health = b.health - ((a.attack + 10) - b.defense)
+    def dodge(self, a):
+        if random.randint(0, 100) <= (a.speed * 5):
+            return True
 
-        if b.health < 0:
-            b.health = 0
-            b.defeated = True
+        return False
+
+    def turn(self, a, b):
+        if not self.dodge(b):
+            if (a.attack + 10) < b.defense:
+                b.health = b.health - 1
+            else:
+                b.health = b.health - ((a.attack + 10) - b.defense)
+
+            if b.health < 0:
+                b.health = 0
+                b.defeated = True
 
     def removeDefeated(self, a):
         alive = []
@@ -336,6 +350,19 @@ class travel(models.Model):
                 rd = False
             else:
                 rd = True
+
+    def level_up(self, p, p2, pChars, eChars):
+        for c in pChars:
+            if not c.defeated:
+                c.level = c.level + 1
+                c.levelUp_stats()
+
+        for c in eChars:
+            p.points = p.points + (c.level * 5)
+
+        p.won_battles = p.won_battles + 1
+        p2.lost_battles = p2.lost_battles + 1
+
 
     # Acabar
     def battle(self):
@@ -376,12 +403,26 @@ class travel(models.Model):
                     rounds = len(at_chars)
 
             if self.checkChars(at_chars):
-                t.player.won_battles = t.player.won_battles + 1
-                t.playe2.lost_battles = t.player2.lost_battles + 1
+                self.level_up(t.player, t.player2, at_chars, t.destiny_region.characters)
+                t.winner = t.player.id
                 # Cambiar la regió
             else:
-                t.player.lost_battles = t.player.lost_battles + 1
-                t.playe2.won_battles = t.player2.won_battles + 1
+                self.level_up(t.player2, t.player, def_chars, t.origin_region.characters)
+                t.winner = t.player2.id
+
+    def start_battle(self):
+        for t in self:
+            if not t.winner.id:
+                print("No winner here")
+
+            if int(t.time_remaining) == 0 and not t.winner.id:
+                self.battle()
+
+    @api.model
+    def check_battles(self):
+        print("-----------Checking for battles--------------")
+        travels = self.env['game.travel'].search([])
+        travels.start_battle()
 
 
 

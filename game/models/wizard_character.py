@@ -20,8 +20,11 @@ class wizard_character(models.TransientModel):
     def _default_player(self):
         return self.env['res.partner'].browse(self._context.get('active_id'))
 
+    def _default_region(self):
+        return self.env['game.region'].browse(self._context.get('active_id'))
+
     player_leader = fields.Many2one('res.partner', default=_default_player, domain="[('is_player', '=', True)]", readonly=True)
-    region = fields.Many2one('game.region')
+    region = fields.Many2one('game.region', default=_default_player, readonly=True)
     # Stats
     health = fields.Integer(default=50)
     attack = fields.Integer(default=lambda self : self.random_generator(1, 3))
@@ -105,7 +108,6 @@ class wizard_character(models.TransientModel):
             'domain': {'region': [('leader', '=', self.player_leader.id)]}
         }
 
-    @api.onchange('level')
     def _levelUp_stats(self):
         for c in self:
             c.health = 40 + (c.level * 10)
