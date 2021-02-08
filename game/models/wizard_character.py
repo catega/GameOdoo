@@ -52,6 +52,8 @@ class wizard_character(models.TransientModel):
             'gathering_level': self.gathering_level
         })
 
+        self.region.gold = self.region.gold - 30
+
         return {
             'name': "Travel Preview",
             'view_type': 'form',

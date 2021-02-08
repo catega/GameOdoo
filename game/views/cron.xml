@@ -20,7 +20,7 @@
             <field name="state">code</field>
             <field name="code">model.check_battles()</field>
             <field name="user_id" ref="base.user_root"/>
-            <field name="interval_number">1</field>
+            <field name="interval_number">10</field>
             <field name="interval_type">minutes</field>
             <field name="numbercall">-1</field>
              <field name="activity_user_type">specific</field>

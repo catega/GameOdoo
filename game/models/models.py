@@ -30,7 +30,7 @@ class player(models.Model):
     points = fields.Integer()
     won_battles = fields.Integer(default=0)
     lost_battles = fields.Integer(default=0)
-    percent_battles = fields.Integer(default=0, compute='_get_percent_battles')
+    percent_battles_won = fields.Integer(default=0, compute='_get_percent_battles')
     time = fields.Char()
     description = fields.Text()
     regions = fields.One2many('game.region', 'leader')
@@ -51,7 +51,10 @@ class player(models.Model):
     def _get_percent_battles(self):
         for p in self:
             total = p.won_battles + p.lost_battles
-            p.percent_battles = (p.won_battles * 100) / total
+            if total != 0:
+                p.percent_battles_won = (p.won_battles * 100) / total
+            else:
+                p.percent_battles_won = 0
     # Fer tamé el filtro de regions sense player
     def filter_regions(self, r, p):
         if r.fortress_level != 0:
@@ -128,6 +131,11 @@ class character(models.Model):
                 raise ValidationError('Max characters amount reached. '
                                       '\nThis region can only have ' + str(c.region.max_characters) + ' characters at the moment. '
                                                                                     '\nLevel it up to get more slots')
+            elif c.region.id and c.region.gold < 30:
+                print(c.region.gold)
+                raise ValidationError('Not enough gold. '
+                                      '\nYou need 30 gold to create a character'
+                                               '\nCurrent gold: ' + str(c.region.gold))
 
     def levelUp_stats(self):
         for c in self:
@@ -158,7 +166,8 @@ class region(models.Model):
     iron = fields.Integer(default=0)
     wood = fields.Integer(default=0)
     food = fields.Integer(default=0)
-    gold = fields.Integer(default=0)
+    gold = fields.Integer(default=30)
+    region_changes = fields.One2many('game.region_changes', 'region')
     pos_x = fields.Integer(default=lambda self : self.random_generator(-100, 100))
     pos_y = fields.Integer(default=lambda self : self.random_generator(-100, 100))
 
@@ -193,11 +202,13 @@ class region(models.Model):
 # Falta ajustar per a que agarre recursos depenent dels characters i el seu level de arreplegar cada uno
     def calculate_production(self):
         for p in self:
+            date = fields.Datetime.now()
+
             if p.leader:
-                new_iron = p.iron_production * 0.01
-                new_wood = p.wood_production * 0.01
-                new_food = p.food_production * 0.01
-                new_gold = p.gold_production * 0.01
+                new_iron = p.iron_production * (0.01 * len(p.characters))
+                new_wood = p.wood_production * (0.01 * len(p.characters))
+                new_food = p.food_production * (0.01 * len(p.characters))
+                new_gold = p.gold_production * (0.01 * len(p.characters))
 
                 final_iron = p.iron + new_iron
                 final_wood = p.wood + new_wood
@@ -210,6 +221,16 @@ class region(models.Model):
                     'food': final_food,
                     'gold': final_gold
                 })
+
+                region_changes = p.env['game.region_changes'].create({'region': p.id, 'time': date, 'name': p.name + " " + str(date)})
+                region_changes.write({
+                    'food': p.food,
+                    'gold': p.gold,
+                    'wood': p.wood,
+                    'iron': p.iron
+                })
+
+
 
     @api.model
     def update_resources(self):
@@ -232,6 +253,7 @@ class travel(models.Model):
     destiny_region = fields.Many2one('game.region', required=True, ondelete='restrict')
     travel_duration = fields.Integer(default=0, compute='_get_travel_duration')
     time_remaining = fields.Float(compute='_get_battle_time')
+    finished = fields.Boolean(default=False)
 
     @api.depends('origin_region', 'destiny_region', 'player')
     def _get_travel_name(self):
@@ -356,6 +378,10 @@ class travel(models.Model):
             if not c.defeated:
                 c.level = c.level + 1
                 c.levelUp_stats()
+                p2.points = p2.points - 5
+
+                if p2.points < 0:
+                    p2.points = 0
 
         for c in eChars:
             p.points = p.points + (c.level * 5)
@@ -410,11 +436,10 @@ class travel(models.Model):
                 self.level_up(t.player2, t.player, def_chars, t.origin_region.characters)
                 t.winner = t.player2.id
 
+            t.finished = True
+
     def start_battle(self):
         for t in self:
-            if not t.winner.id:
-                print("No winner here")
-
             if int(t.time_remaining) == 0 and not t.winner.id:
                 self.battle()
 
@@ -436,6 +461,18 @@ class player_changes(models.Model):
     name = fields.Char()
     player = fields.Many2one('res.partner', ondelete='cascade', required=True)
     percent = fields.Integer()
+    time = fields.Char()
+
+class region_changes(models.Model):
+    _name = 'game.region_changes'
+    _description = 'game.region_changes'
+
+    name = fields.Char()
+    region = fields.Many2one('game.region', ondelete='cascade', required=True)
+    gold = fields.Integer()
+    food = fields.Integer()
+    iron = fields.Integer()
+    wood = fields.Integer()
     time = fields.Char()
 
 class alliance(models.Model):

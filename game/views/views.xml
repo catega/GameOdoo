@@ -133,16 +133,22 @@
                         <field name="photo" widget="image"/>
                         <group>
                             <group>
+                                <separator string="General info"/>
                                 <field name="name"/>
                                 <field name="description"/>
                                 <field name="race"/>
+                                <field name="clan"/>
                             </group>
                             <group>
+                                <separator string="Score"/>
                                 <field name="level"/>
                                 <field name="points"/>
+                            </group>
+                            <group>
+                                <separator string="Battles"/>
                                 <field name="won_battles"/>
                                 <field name="lost_battles"/>
-                                <field name="clan"/>
+                                <field name="percent_battles_won" widget="percentpie"/>
                             </group>
                             <group>
                                 <field name="is_player"/>
@@ -218,16 +224,22 @@
                         <field name="photo" widget="image"/>
                         <group>
                             <group>
+                                <separator string="General info"/>
                                 <field name="name"/>
                                 <field name="description"/>
                                 <field name="race"/>
+                                <field name="clan"/>
                             </group>
                             <group>
+                                <separator string="Score"/>
                                 <field name="level"/>
                                 <field name="points"/>
+                            </group>
+                            <group>
+                                <separator string="Battles"/>
                                 <field name="won_battles"/>
                                 <field name="lost_battles"/>
-                                <field name="clan"/>
+                                <field name="percent_battles_won" widget="percentpie"/>
                             </group>
                             <group>
                                 <field name="is_player"/>
@@ -425,6 +437,28 @@
         </record>
 
         <!-- Region form -->
+        <record model="ir.ui.view" id="game.region_changes_graph">
+            <field name="name">Region changes graph</field>
+            <field name="model">game.region_changes</field>
+            <field name="arch" type="xml">
+                <graph string="Region changes" type="line">
+                    <field name="time" type="row"/>
+                    <field name="region" type="col"/>
+                    <field name="gold" type="measure"/>
+                    <field name="food" type="measure"/>
+                    <field name="iron" type="measure"/>
+                    <field name="wood" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <act_window id="game.launch_region_changes_graph"
+                    name="Launch Region Changes graph"
+                    res_model="game.region_changes"
+                    view_mode="graph"
+                    target="new"
+                    domain="[('region','=',active_id)]"/>
+
         <record model="ir.ui.view" id="game.region_form">
             <field name="name">Regions</field>
             <field name="model">game.region</field>
@@ -516,6 +550,13 @@
                                 </field>
                                 <button name="%(game.launch_character_wizard)d" type="action" string="Add character" icon="fa-bolt"
                                         context="{'default_player_leader':leader}"></button>
+                            </page>
+                            <page string="Region changes">
+                                <field name="region_changes"/>
+                                <footer>
+                                    <button name="%(game.launch_region_changes_graph)d" type="action" string="Show Graph"
+                                        class="oe_highlight"></button>
+                                </footer>
                             </page>
                         </notebook>
                     </sheet>
@@ -783,6 +824,20 @@
             </field>
         </record>
 
+        <!-- Travel/Battle search -->
+        <record model="ir.ui.view" id="game.travel_search">
+            <field name="name">Travel search</field>
+            <field name="model">game.travel</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="player"/>
+                    <filter name="finished" string="Active" domain="[('finished','=',False)]" />
+                    <filter name="group_by_player" string="Group by player" context="{'group_by' : 'player'}"/>
+                </search>
+            </field>
+        </record>
+
         <!-- actions opening views on models -->
 
         <record model="ir.actions.act_window" id="game.player_action_window">
@@ -813,10 +868,19 @@
             <field name="name">Travels</field>
             <field name="res_model">game.travel</field>
             <field name="view_mode">tree,form,calendar</field>
+            <field name="context">{'default_finished': False, 'search_default_finished': 1}</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('game.travel_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('game.travel_form')}),]"/>
         </record>
         <record model="ir.actions.act_window" id="game.p_changes_action_window">
             <field name="name">Player changes</field>
             <field name="res_model">game.player_changes</field>
+            <field name="view_mode">tree,form,graph</field>
+        </record>
+        <record model="ir.actions.act_window" id="game.r_changes_action_window">
+            <field name="name">Region changes</field>
+            <field name="res_model">game.region_changes</field>
             <field name="view_mode">tree,form,graph</field>
         </record>
         <record model="ir.actions.act_window" id="game.alliance_action_window">
@@ -869,6 +933,8 @@
         <!-- Aux menu -->
         <menuitem name="Player changes" id="game.menu_1_p_changes" parent="game.menu_2"
                   action="game.p_changes_action_window"/>
+        <menuitem name="Region changes" id="game.menu_1_r_changes" parent="game.menu_2"
+                  action="game.r_changes_action_window"/>
 
     </data>
 </odoo>

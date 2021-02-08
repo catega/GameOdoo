@@ -5,3 +5,4 @@ access_game_region,game.region,model_game_region,base.group_user,1,1,1,1
 access_game_travel,game.travel,model_game_travel,base.group_user,1,1,1,1
 access_game_player_changes,game.player_changes,model_game_player_changes,base.group_user,1,1,1,1
 access_game_alliance,game.alliance,model_game_alliance,base.group_user,1,1,1,1
+access_game_region_changes,game.region_changes,model_game_region_changes,base.group_user,1,1,1,1
