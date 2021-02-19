@@ -30,7 +30,7 @@ class player(models.Model):
     points = fields.Integer()
     won_battles = fields.Integer(default=0)
     lost_battles = fields.Integer(default=0)
-    percent_battles_won = fields.Integer(default=0, compute='_get_percent_battles')
+    percent_battles_won = fields.Integer(default=0)
     time = fields.Char()
     description = fields.Text()
     regions = fields.One2many('game.region', 'leader')
@@ -46,16 +46,6 @@ class player(models.Model):
 
     _sql_constraints = [('name_uniq', 'unique(name)', 'Name already in use')]
 
-    # Plenar player_changes
-    @api.depends('won_battles', 'lost_battles')
-    def _get_percent_battles(self):
-        for p in self:
-            total = p.won_battles + p.lost_battles
-            if total != 0:
-                p.percent_battles_won = (p.won_battles * 100) / total
-            else:
-                p.percent_battles_won = 0
-    # Fer tamé el filtro de regions sense player
     def filter_regions(self, r, p):
         if r.fortress_level != 0:
             if r.leader.race != p.race:
@@ -79,6 +69,21 @@ class player(models.Model):
         for p in self:
             a_regions = self.env['game.region'].search([]).filtered(lambda r: self.filter_available_regions(r))
             p.available_regions = a_regions.ids
+
+    def get_percent_battles(self):
+        for p in self:
+            date = fields.Datetime.now()
+
+            total = p.won_battles + p.lost_battles
+            if total != 0:
+                p.percent_battles_won = (p.won_battles * 100) / total
+            else:
+                p.percent_battles_won = 0
+
+            player_changes = p.env['game.player_changes'].create({'player': p.id, 'time': date, 'name': p.name + " " + str(date)})
+            player_changes.write({
+                'percent': p.percent_battles_won,
+            })
 
 class clan(models.Model):
     _name = 'game.clan'
@@ -104,7 +109,7 @@ class character(models.Model):
     name = fields.Char(default=name_generator)
     level = fields.Integer(default=1)
     player_leader = fields.Many2one('res.partner', domain="[('is_player', '=', True)]")
-    region = fields.Many2one('game.region')
+    region = fields.Many2one('game.region', domain="[('leader', '=', player_leader)]")
     health = fields.Integer(default=50)
     attack = fields.Integer(default=lambda self : self.random_generator(1, 3))
     defense = fields.Integer(default=lambda self: self.random_generator(1, 3))
@@ -143,6 +148,12 @@ class character(models.Model):
             c.attack = c.attack + 1
             c.defense = c.defense + 1
             c.speed = c.speed + 1
+
+    def revive_characters(self):
+        records = self.browse(self.env.context.get('active_ids'))
+        for c in records:
+            c.write({'health': 40 + (c.level * 10)})
+            c.write({'defeated': False})
 
 # Cambiar la creació de characters desde botó así
 class region(models.Model):
@@ -198,6 +209,17 @@ class region(models.Model):
     @api.model
     def random_generator(self, a, b):
         return random.randint(a, b)
+
+    def open_player(self):
+        for b in self:
+            if b.leader:
+                return {
+                    "type": "ir.actions.act_window",
+                    "res_model": "res.partner",
+                    "views": [[self.env.ref('game.player_form').id, "form"]],
+                    "res_id": b.leader.id,
+                    "target": "new"
+                }
 
 # Falta ajustar per a que agarre recursos depenent dels characters i el seu level de arreplegar cada uno
     def calculate_production(self):
@@ -304,7 +326,8 @@ class travel(models.Model):
                 }
         return {
             'domain': {'origin_region': [('leader', '=', self.player.id)],
-                       'player2': [('id', '!=', self.player.id)]},
+                       'player2': [('id', '!=', self.player.id)],
+                       'player2': [('race', '!=', self.player.race)]},
         }
 
     @api.onchange('player2')
@@ -348,6 +371,12 @@ class travel(models.Model):
 
         return alive
 
+    def claim_region(self, p, r, eChars):
+        r.leader = p
+
+        for c in eChars:
+            c.region = False
+
 
     def checkChars(self, a):
         if len(a) is 0:
@@ -389,8 +418,10 @@ class travel(models.Model):
         p.won_battles = p.won_battles + 1
         p2.lost_battles = p2.lost_battles + 1
 
+        p.get_percent_battles()
+        p2.get_percent_battles()
 
-    # Acabar
+
     def battle(self):
         for t in self:
             at_chars = t.origin_region.characters
@@ -430,8 +461,8 @@ class travel(models.Model):
 
             if self.checkChars(at_chars):
                 self.level_up(t.player, t.player2, at_chars, t.destiny_region.characters)
+                self.claim_region(t.player, t.destiny_region, t.destiny_region.characters)
                 t.winner = t.player.id
-                # Cambiar la regió
             else:
                 self.level_up(t.player2, t.player, def_chars, t.origin_region.characters)
                 t.winner = t.player2.id

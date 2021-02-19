@@ -81,8 +81,8 @@
             <field name="model">game.player_changes</field>
             <field name="arch" type="xml">
                 <graph string="Player battles percent" type="line">
-                    <field name="name" type="row"/>
-                    <field name="time" type="col"/>
+                    <field name="time" type="row"/>
+                    <field name="player" type="col"/>
                     <field name="percent" type="measure"/>
                 </graph>
             </field>
@@ -167,7 +167,6 @@
                             <page string="Characters">
                                 <field name="characters" context="{'default_player_leader': active_id}">
                                     <kanban>
-                                        <!--list of field to be loaded -->
                                         <field name="name"/>
                                         <field name="id"/>
                                         <field name="region"/>
@@ -196,8 +195,7 @@
                                 </field>
                             </page>
                             <page string="Active Travels">
-                                <field name="active_travels"/><!--context="{'default_player': active_id}"-->
-                                <!-- Cambiar lo del context o crear battles-->
+                                <field name="active_travels"/>
                                 <button name="%(game.launch_travel_wizard)d" type="action" string="Add travel" icon="fa-bolt"
                                         context="{'default_player':active_id}"></button>
                             </page>
@@ -369,6 +367,16 @@
                         </group>
                     </sheet>
                 </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.server" id="game.revive_characters_action">
+            <field name="name">Revive characters</field>
+            <field name="model_id" ref="model_game_character"/>
+            <field name="binding_model_id" ref="model_game_character"/>
+            <field name="state">code</field>
+            <field name="code">
+                action=model.revive_characters()
             </field>
         </record>
 
@@ -550,6 +558,7 @@
                                 </field>
                                 <button name="%(game.launch_character_wizard)d" type="action" string="Add character" icon="fa-bolt"
                                         context="{'default_player_leader':leader}"></button>
+                                <button type="object" name="open_player" string="Open Player"></button>
                             </page>
                             <page string="Region changes">
                                 <field name="region_changes"/>
