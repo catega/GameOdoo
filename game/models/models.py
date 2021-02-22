@@ -24,7 +24,7 @@ class player(models.Model):
 
     photo = fields.Image(max_width=120, max_height=120)
     #name = fields.Char()
-    is_player = fields.Boolean(default=True)
+    is_player = fields.Boolean()
     race = fields.Selection([('1', 'Hombre lobo'), ('2', 'Vampiro')], required=True)
     level = fields.Integer(default=1)
     points = fields.Integer()
@@ -43,6 +43,8 @@ class player(models.Model):
     battle_status = fields.Selection(
         [('1', 'Rookie'), ('2', 'Soldier'), ('3', 'Captain'), ('4', 'General'), ('5', 'Warlord')], default='1')
     player_changes = fields.One2many('game.player_changes', 'player')
+    is_premium = fields.Boolean(default=False)
+    revives = fields.Integer(default=0)
 
     _sql_constraints = [('name_uniq', 'unique(name)', 'Name already in use')]
 
@@ -54,6 +56,18 @@ class player(models.Model):
                 return False
 
         return False
+
+    @api.onchange("won_battles")
+    def check_won_battles(self):
+        for p in self:
+            if p.won_battles >= 50:
+                p.battle_status = 2
+            elif p.won_battles >= 200:
+                p.battle_status = 3
+            elif p.won_battles >= 500:
+                p.battle_status = 4
+            elif p.won_battles >= 1000:
+                p.battle_status = 5
 
     def _get_enemy_regions(self):
         for p in self:
@@ -149,19 +163,30 @@ class character(models.Model):
             c.defense = c.defense + 1
             c.speed = c.speed + 1
 
+    def revive(self):
+        for c in self:
+            if c.player_leader.revives == 0:
+                raise ValidationError('Not enough revives. '
+                                      '\nYou have to win battles to get revives'
+                                      '\nEach won battle will give you 1 revive, 3 if you are premium.')
+            else:
+                c.player_leader.revives = c.player_leader.revives - 1
+                c.write({'health': 40 + (c.level * 10)})
+                c.write({'defeated': False})
+
     def revive_characters(self):
         records = self.browse(self.env.context.get('active_ids'))
         for c in records:
             c.write({'health': 40 + (c.level * 10)})
             c.write({'defeated': False})
 
-# Cambiar la creació de characters desde botó así
+
 class region(models.Model):
     _name = 'game.region'
     _description = 'game.region'
 
     name = fields.Char(default=name_generator)
-    fortress_level = fields.Integer(default=0, compute='_get_fortress_level')
+    fortress_level = fields.Integer(default=0)
     max_characters = fields.Integer(default=0, compute='_get_max_characters')
     leader = fields.Many2one('res.partner', domain="[('is_player', '=', True)]")
     leader_clan = fields.Many2one('game.clan', compute='_get_leader_clan')
@@ -187,8 +212,8 @@ class region(models.Model):
         for r in self:
             r.leader_clan = r.leader.clan
 
-    @api.depends('leader')
-    def _get_fortress_level(self):
+    @api.onchange('leader')
+    def get_fortress_level(self):
         for r in self:
             if r.fortress_level == 0 and r.leader:
                 r.fortress_level = 1
@@ -209,6 +234,53 @@ class region(models.Model):
     @api.model
     def random_generator(self, a, b):
         return random.randint(a, b)
+
+    def upgrade_fortress(self):
+        for r in self:
+            date = fields.Datetime.now()
+
+            if r.fortress_level == 1:
+                if r.iron < 1000 or r.wood < 1600 or r.gold < 500:
+                    raise ValidationError('Not enough materials. '
+                                          '\nYou must have ' + str(1000) + ' iron, ' + str(1600) + ' wood and ' + str(500) + ' gold to upgrade the fortress.'
+                                          '\nCurrent materials: ' + str(r.iron) + ' iron, ' + str(r.wood) + ' wood and ' + str(r.gold) + ' gold.')
+                else:
+                    r.iron = r.iron - 1000
+                    r.wood = r.wood - 1600
+                    r.gold = r.gold - 500
+                    r.write({'fortress_level': r.fortress_level + 1})
+
+                    region_changes = r.env['game.region_changes'].create(
+                        {'region': r.id, 'time': date, 'name': r.name + " " + str(date)})
+                    region_changes.write({
+                        'food': r.food,
+                        'gold': r.gold,
+                        'wood': r.wood,
+                        'iron': r.iron
+                    })
+            elif r.fortress_level == 2:
+                if r.iron < 5000 or r.wood < 8000 or r.gold < 2500:
+                    raise ValidationError('Not enough materials. '
+                                          '\nYou must have ' + str(5000) + ' iron, ' + str(8000) + ' wood and ' + str(2500) + ' gold to upgrade the fortress.'
+                                          '\nCurrent materials: ' + str(r.iron) + ' iron, ' + str(r.wood) + ' wood and ' + str(r.gold) + ' gold.')
+                else:
+                    r.iron = r.iron - 5000
+                    r.wood = r.wood - 8000
+                    r.gold = r.gold - 2500
+                    r.write({'fortress_level': r.fortress_level + 1})
+
+                    region_changes = r.env['game.region_changes'].create(
+                        {'region': r.id, 'time': date, 'name': r.name + " " + str(date)})
+                    region_changes.write({
+                        'food': r.food,
+                        'gold': r.gold,
+                        'wood': r.wood,
+                        'iron': r.iron
+                    })
+            elif r.fortress_level == 3:
+                raise ValidationError('Fortress at max level.'
+                                      '\nYour fortress is at level 3')
+
 
     def open_player(self):
         for b in self:
@@ -416,6 +488,11 @@ class travel(models.Model):
             p.points = p.points + (c.level * 5)
 
         p.won_battles = p.won_battles + 1
+        if p.is_premium:
+            p.revives = p.revives + 3
+        else:
+            p.revives = p.revives + 1
+
         p2.lost_battles = p2.lost_battles + 1
 
         p.get_percent_battles()

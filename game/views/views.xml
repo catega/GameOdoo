@@ -148,6 +148,97 @@
                                 <separator string="Battles"/>
                                 <field name="won_battles"/>
                                 <field name="lost_battles"/>
+                                <field name="revives"/>
+                                <field name="percent_battles_won" widget="percentpie"/>
+                            </group>
+                            <group>
+                                <field name="is_player"/>
+                                <field name="is_premium"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Regions">
+                                <field name="regions"/>
+                            </page>
+                            <page string="Enemy regions">
+                                <field name="enemy_regions"/>
+                            </page>
+                            <page string="Available regions">
+                                <field name="available_regions"/>
+                            </page>
+                            <page string="Characters">
+                                <field name="characters" context="{'default_player_leader': active_id}">
+                                    <kanban>
+                                        <field name="name"/>
+                                        <field name="id"/>
+                                        <field name="region"/>
+                                        <field name='level'/>
+
+                                        <templates>
+                                            <t t-name="kanban-box">
+                                                <div class="oe_product_vignette">
+                                                    <div class="oe_product_desc">
+                                                        <h4>
+                                                            <a type="edit">
+                                                                <field name="name"/>
+                                                            </a>
+                                                        </h4>
+                                                        <p>
+                                                            <b>Level:</b>
+                                                            <field name="level"/>
+                                                            <br/>
+                                                            <field name="region"/>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </templates>
+                                    </kanban>
+                                </field>
+                            </page>
+                            <page string="Active Travels">
+                                <field name="active_travels"/>
+                                <button name="%(game.launch_travel_wizard)d" type="action" string="Add travel" icon="fa-bolt"
+                                        context="{'default_player':active_id}"></button>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <footer>
+                        <button name="%(game.launch_player_changes_graph)d" type="action" string="Show Graph"
+                                        class="oe_highlight"></button>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Player inherit form -->
+        <!--<record model="ir.ui.view" id="game.player_inherit_form">
+            <field name="name">Players</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <form string="Player form">
+                    <header>
+                        <field name="battle_status" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <field name="photo" widget="image"/>
+                        <group>
+                            <group>
+                                <separator string="General info"/>
+                                <field name="name"/>
+                                <field name="description"/>
+                                <field name="race"/>
+                                <field name="clan"/>
+                            </group>
+                            <group>
+                                <separator string="Score"/>
+                                <field name="level"/>
+                                <field name="points"/>
+                            </group>
+                            <group>
+                                <separator string="Battles"/>
+                                <field name="won_battles"/>
+                                <field name="lost_battles"/>
                                 <field name="percent_battles_won" widget="percentpie"/>
                             </group>
                             <group>
@@ -207,98 +298,7 @@
                     </footer>
                 </form>
             </field>
-        </record>
-
-        <!-- Player inherit form -->
-        <record model="ir.ui.view" id="game.player_inherit_form">
-            <field name="name">Players</field>
-            <field name="model">res.partner</field>
-            <field name="arch" type="xml">
-                <form string="Player form">
-                    <header>
-                        <field name="battle_status" widget="statusbar"/>
-                    </header>
-                    <sheet>
-                        <field name="photo" widget="image"/>
-                        <group>
-                            <group>
-                                <separator string="General info"/>
-                                <field name="name"/>
-                                <field name="description"/>
-                                <field name="race"/>
-                                <field name="clan"/>
-                            </group>
-                            <group>
-                                <separator string="Score"/>
-                                <field name="level"/>
-                                <field name="points"/>
-                            </group>
-                            <group>
-                                <separator string="Battles"/>
-                                <field name="won_battles"/>
-                                <field name="lost_battles"/>
-                                <field name="percent_battles_won" widget="percentpie"/>
-                            </group>
-                            <group>
-                                <field name="is_player"/>
-                            </group>
-                        </group>
-                        <notebook>
-                            <page string="Regions">
-                                <field name="regions"/>
-                            </page>
-                            <page string="Enemy regions">
-                                <field name="enemy_regions"/>
-                            </page>
-                            <page string="Available regions">
-                                <field name="available_regions"/>
-                            </page>
-                            <page string="Characters">
-                                <field name="characters" context="{'default_player_leader': active_id}">
-                                    <kanban>
-                                        <!--list of field to be loaded -->
-                                        <field name="name"/>
-                                        <field name="id"/>
-                                        <field name="region"/>
-                                        <field name='level'/>
-
-                                        <templates>
-                                            <t t-name="kanban-box">
-                                                <div class="oe_product_vignette">
-                                                    <div class="oe_product_desc">
-                                                        <h4>
-                                                            <a type="edit">
-                                                                <field name="name"/>
-                                                            </a>
-                                                        </h4>
-                                                        <p>
-                                                            <b>Level:</b>
-                                                            <field name="level"/>
-                                                            <br/>
-                                                            <field name="region"/>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </t>
-                                        </templates>
-                                    </kanban>
-                                </field>
-                            </page>
-                            <page string="Active Travels">
-                                <field name="active_travels"/><!--context="{'default_player': active_id}"-->
-                                <!-- Cambiar lo del context o crear battles-->
-                                <button name="%(game.launch_travel_wizard)d" type="action" string="Add travel" icon="fa-bolt"
-                                        context="{'default_player':active_id}"></button>
-                            </page>
-                        </notebook>
-                    </sheet>
-                    <footer>
-                        <button name="%(game.launch_player_changes_graph)d" type="action" string="Show Graph"
-                                        class="oe_highlight"></button>
-                    </footer>
-                </form>
-            </field>
-        </record>
+        </record>-->
 
         <!-- Wizard travel -->
 
@@ -365,6 +365,9 @@
                                 <field name="gathering_level"/>
                             </group>
                         </group>
+                        <footer>
+                            <button name="revive" type="object" string="Revive" class="oe_highlight"/>
+                        </footer>
                     </sheet>
                 </form>
             </field>
@@ -568,6 +571,7 @@
                                 </footer>
                             </page>
                         </notebook>
+                        <button name="upgrade_fortress" type="object" string="Upgrade fortress" class="oe_highlight"></button>
                     </sheet>
                 </form>
             </field>
