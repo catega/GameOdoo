@@ -60,14 +60,14 @@ class player(models.Model):
     @api.onchange("won_battles")
     def check_won_battles(self):
         for p in self:
-            if p.won_battles >= 50:
-                p.battle_status = 2
-            elif p.won_battles >= 200:
-                p.battle_status = 3
+            if p.won_battles >= 1000:
+                p.battle_status = '5'
             elif p.won_battles >= 500:
-                p.battle_status = 4
-            elif p.won_battles >= 1000:
-                p.battle_status = 5
+                p.battle_status = '4'
+            elif p.won_battles >= 200:
+                p.battle_status = '3'
+            elif p.won_battles >= 50:
+                p.battle_status = '2'
 
     def _get_enemy_regions(self):
         for p in self:
